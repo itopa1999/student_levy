@@ -323,4 +323,39 @@
 
 
   
-    
+document.addEventListener('DOMContentLoaded', function() {
+  const token = localStorage.getItem('levy_token')
+  if (token == null && token == 'undefined') {
+    window.location.href = 'login.html';  
+  }
+  fetch('http://localhost:5087/auth/api/get/user/data/', {
+    method: 'GET',
+    headers: {
+        'Authorization': 'Bearer ' + token
+    }
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(data => {
+        if (data.isAdmin===true) {
+          console.log('Admin');
+        } else if (data.isStudent===true) {
+          console.log('d-none');
+        } else {
+          localStorage.removeItem('levy_token');
+          window.location.href = 'login.html';
+        }
+      })
+    }else{
+      localStorage.removeItem('levy_token');
+      window.location.href = 'login.html';
+    }
+  })
+
+
+  document.getElementById("logoutBtn").addEventListener('click', function() {
+    localStorage.removeItem('levy_token');
+    window.location.href = 'login.html';
+});
+
+
+});

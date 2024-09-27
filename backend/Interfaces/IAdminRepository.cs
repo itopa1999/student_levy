@@ -20,6 +20,9 @@ namespace backend.Interfaces
         Task<List<StudentDto>> ListStudentAsync();
         Task<StudentDto?> UpdateStudentDetailsAsync(string id, UpdateStudentDetailsDto studentDetailsDto);
         Task<StudentDetailsDto?> GetStudentDetailsAsync(string id);
+        Task<Levy?> CreateLevyAsync(Levy levy);
+        Task<GetSemesterDetailsDto?> GetSemesterDetailsAsync(int id);
+        Task<Transaction> CreatePayStudentLevyAsync(Transaction transaction);
 
         
     }

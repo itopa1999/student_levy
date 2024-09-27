@@ -34,61 +34,95 @@ namespace backend.Controllers
             _adminRepo = adminRepo;
         }
 
-        [HttpPost("create/department")]
-        // [Authorize]
+        [HttpPost("create/department/")]
+        [Authorize]
         public async Task<IActionResult> CreateDepartment([FromBody] CreateDepartmentDto departmentDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
             }
-            var existingDepartment = await _context.Departments.FirstOrDefaultAsync(x=>x.Name == departmentDto.Name);
-            if (existingDepartment == null){
-                var department = departmentDto.ToCreateDepartmentDto();
-                var createdDepartment =await _adminRepo.CreateDepartmentAsync(department);
-                List<Semester> semesters = new List<Semester>
-                {
-                    new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 1 First Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id },
-                    new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 1 Second Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id },
-                    new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 2 First Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id },
-                    new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 2 Second Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id }
-                };
+            bool isDuplicate = await _context.Departments
+                .AnyAsync(d => d.Name == departmentDto.Name && 
+                            d.AcademicYear == departmentDto.AcademicYear &&
+                            d.ProgramType == departmentDto.ProgramType);
 
-                // Add and save semesters
-                await _context.Semesters.AddRangeAsync(semesters);
-                await _context.SaveChangesAsync();
-                return StatusCode(201, new {message="Department created."});
-            }return StatusCode(400, new{message = $"Department name {existingDepartment.Name} already exists"});
-            
+            if (isDuplicate)
+            {
+                return BadRequest(new { message = "A department with the same details already exists." });
+            }
+            var department = departmentDto.ToCreateDepartmentDto();
+            var createdDepartment =await _adminRepo.CreateDepartmentAsync(department);
+            List<Semester> semesters = new List<Semester>
+            {
+                new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 1 First Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id },
+                new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 1 Second Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id },
+                new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 2 First Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id },
+                new Semester { Name = $"{createdDepartment.Name} {createdDepartment.ProgramType} 2 Second Semester {createdDepartment.AcademicYear}", DepartmentId = createdDepartment.Id }
+            };
 
+            // Add and save semesters
+            await _context.Semesters.AddRangeAsync(semesters);
+            await _context.SaveChangesAsync();
+            return StatusCode(201, new {message="Department created.",value = createdDepartment.ToDepartmentDto()});
+        
         }
 
-        [HttpGet("list/department")]
+        [HttpGet("list/department/")]
+        [Authorize]
         public async Task<IActionResult> ListDepartment(){
             var departments = await _adminRepo.ListDepartmentAsync();
             return Ok(departments);
              
         }
 
-        [HttpGet("get/department/details/{id:int}")]
+        [HttpGet("get/department/details/{id:int}/")]
+        [Authorize]
         public async Task<IActionResult> GetDepartmentDetails([FromRoute] int id){
             var departments = await _adminRepo.GetDepartmentAsync(id);
+            if (departments == null){
+                return BadRequest(new{message = "Department not found"});
+            }
             return Ok(departments);
              
         }
 
-        [HttpPut("update/department/details/{id:int}")]
+        [HttpPut("update/department/details/{id:int}/")]
+        [Authorize]
         public async Task<IActionResult> UpdateDepartmentDetails([FromRoute] int id, [FromBody] UpdateDepartmentDto updateDepartmentDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
             }
+            var existingRecord = await _context.Departments.FindAsync(id);
+            if (existingRecord == null)
+            {
+                return NotFound(new { message = "Record not found." });
+            }
+            bool isDuplicate = await _context.Departments
+                .AnyAsync(r => r.Name == updateDepartmentDto.Name &&
+                            r.AcademicYear == updateDepartmentDto.AcademicYear &&
+                            r.ProgramType == updateDepartmentDto.ProgramType);
+
+            if (isDuplicate)
+            {
+                return BadRequest(new { message = "An identical record already exists." });
+            }
             var departments = await _adminRepo.UpdateDepartmentAsync(id, updateDepartmentDto);
+            if (departments == null){
+                return BadRequest(new{message = "Department not found"});
+            
+            }
             return Ok(departments);
              
         }
 
-        [HttpPost("create/student")]
+        [HttpPost("create/student/")]
+        [Authorize]
         public async Task<IActionResult> CreateStudent([FromBody] CreateStudentDto createStudentDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
+            }
+            var isdepartment = await _context.Departments.FindAsync(createStudentDto.DepartmentId);
+            if (isdepartment == null){
+                return BadRequest(new{message= "Department not found"});
             }
             try{
                 var user = new AppUser{
@@ -116,7 +150,8 @@ namespace backend.Controllers
 
         }
 
-    [HttpPost("upload/students")]
+    [HttpPost("upload/students/")]
+    [Authorize]
     public async Task<IActionResult> UploadStudent(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -213,16 +248,19 @@ namespace backend.Controllers
 
 
 
-        [HttpGet("get/students/details/{id}")]
+        [HttpGet("get/students/details/{id}/")]
+        [Authorize]
         public async Task<IActionResult> GetStudentDetails(string id){
             var student = await _adminRepo.GetStudentDetailsAsync(id);
             if (student == null){
-                return NoContent();
+                return BadRequest(new{message = "student not found"});
+            
             }
             return Ok(student);
         }
 
-        [HttpGet("list/students")]
+        [HttpGet("list/students/")]
+        [Authorize]
         public async Task<IActionResult> ListStudents(){
             var students = await _adminRepo.ListStudentAsync();
             if (students == null){
@@ -233,17 +271,189 @@ namespace backend.Controllers
 
 
 
-        [HttpPut("update/student/details/{id}")]
+        [HttpPut("update/student/details/{id}/")]
+        [Authorize]
         public async Task<IActionResult> UpdateStudentDetails([FromRoute] string id, [FromBody] UpdateStudentDetailsDto studentDetailsDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
             }
             var student = await _adminRepo.UpdateStudentDetailsAsync(id, studentDetailsDto);
+            if (student == null)
+            {
+                return BadRequest(new { message = "Student matricNo already exists" });
+            }
             return Ok(student);
         }
 
+        [HttpGet("admin/dashboard/")]
+        [Authorize]
+        public async Task<IActionResult> Dashboard(){
+            var t_student = await _userManager.Users.Where(x=>x.IsStudent == true).CountAsync();
+            var t_department = await _context.Departments.CountAsync();
+            var transactions = await _context.Transactions
+            .Include(l=>l.AppUser)
+            .Include(c=>c.Levy)
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(10)
+            .Select(t => new studentTransactionDto
+            {
+                Id = t.Id,
+                Amount = t.Amount,
+                TransID = t.TransID,
+                Method = t.Method,
+                Description = t.Description,
+                StudentFName = t.AppUser.FirstName,
+                StudentLName = t.AppUser.LastName,
+                LevyName = t.Levy.Name,
+                CreatedAt = t.CreatedAt
+            })
+            .ToListAsync();
+            
+            return StatusCode(200, new{
+                t_department = t_department,
+                t_student = t_student,
+                transactions = transactions
+            });
+        }
 
+        [HttpGet("get/department/")]
         
+        public async Task<IActionResult> GetDetails(){
+            var departments = await _context.Departments.ToListAsync();
+            if (departments == null || !departments.Any()){
+                return NoContent();
+            }
+            
+            var departmentDtos = departments.Select(d => d.ToGetDepartmentDto()).ToList();
+            return Ok(departmentDtos);
+        }
+
+
+        [HttpPost("change/student/password/{id}/")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] AdminStudentChangePasswordDto passwordDto, [FromRoute] string id){
+            if (!ModelState.IsValid){
+                return BadRequest(ModelState);
+            }
+            if (passwordDto.Password1 != passwordDto.Password2){
+                return StatusCode(400, new{message="password mismatch"});
+            }
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found" });
+            }
+            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            IdentityResult result = await _userManager.ResetPasswordAsync(user, resetToken, passwordDto.Password1);
+            if (result.Succeeded){
+                Console.WriteLine($"new password: {passwordDto.Password1}");
+                return StatusCode(200, new{message=$"your password has been reset, here is your new password {passwordDto.Password1}"});
+            }
+            return BadRequest(new { message = result.Errors });
+        }
+
+
+        [HttpPost("create/levy")]
+        //[Authorize]
+        public async Task<IActionResult> CreateLevy([FromBody] CreateLevyDto levyDto){
+            if (!ModelState.IsValid){
+                return BadRequest(ModelState);
+            }
+            if (levyDto.Amount <= 0 ){
+                return BadRequest(new{message="Amount must be greater than 0"});
+            }
+            var checkedSemester = await _context.Semesters.FindAsync(levyDto.SemesterId);
+            if (checkedSemester == null){
+                return BadRequest(new{message=$"semester not found for this iD: {levyDto.SemesterId}"});
+            }
+            var existingLevy = await _context.Levies.FirstOrDefaultAsync(x=>x.Name == levyDto.Name && x.SemesterId == levyDto.SemesterId);
+            if (existingLevy == null){
+                var levy = levyDto.ToCreateLevyDto();
+                var createdLevy = await _adminRepo.CreateLevyAsync(levy);
+                if (createdLevy == null){
+                    return BadRequest(new{message="No student to assign levies for semester"});
+                }
+                return Ok(new {message=$"{levyDto.Name} successfullly added"});
+
+            }return BadRequest(new{message=$"levy already exists for this Name: {levyDto.Name}"});
+        }
+
+        [HttpGet("get/levy/details/{id:int}")]
+        
+        public async Task<IActionResult> GetSemesterDetails([FromRoute] int id){
+            var checkSemester = await _context.Semesters.FindAsync(id);
+            if (checkSemester == null){
+                return BadRequest(new{message="Semester not found"});
+            }
+            var semesterDetails = await _adminRepo.GetSemesterDetailsAsync(id);
+            if (semesterDetails == null){
+                return BadRequest(new{message="Semester not found"});
+            }
+            return Ok(semesterDetails);
+
+        }
+
+        [HttpPost("pay/student/levy")]
+        [Authorize]
+        public async Task<IActionResult> PayStudentLevy([FromBody] PayStudentLevyDto payDto){
+            if (!ModelState.IsValid){
+                return BadRequest(ModelState);
+            }
+            if (payDto.Amount <= 0 ){
+                return BadRequest(new{message="Amount must be greater than 0"});
+            }
+            var student = await _userManager.FindByIdAsync(payDto.AppUserId);
+            if (student == null ){
+                return BadRequest(new{message="Student not found"});
+            }
+            var levy = await _context.Levies.FindAsync(payDto.LevyId);
+            if (levy == null ){
+                return BadRequest(new{message="Levy not found"});
+            }
+            if (levy.ToBalance == 0 ){
+                return BadRequest(new{message="This Levy has been paid completely"});
+            }
+            if (levy.ToBalance < payDto.Amount ){
+                return BadRequest(new{message="Please make sure amount is no greater than toBalance"});
+            }
+            if (student.Balance == 0){
+                return BadRequest(new{message="Student has no levies to pay"});
+            }
+            var payment = payDto.ToCreatePayStudentLevyDto();
+            var paid = await _adminRepo.CreatePayStudentLevyAsync(payment);
+            if (paid == null){
+               return BadRequest(new{message="Student has no levies to pay"}); 
+            }
+            student.Balance -= paid.Amount;
+            await _userManager.UpdateAsync(student);
+
+            levy.ToBalance -= paid.Amount;
+            await _context.SaveChangesAsync();
+
+            return Ok(new{message=$"Payment has been successfully toBalance: {levy.ToBalance}"});
+
+        }
+
+
+        [HttpGet("defaulting/students")]
+
+        public async Task<IActionResult> DefaultStudent(){
+            var defaultstudent = await _context.Levies
+            .Where(x=>x.ToBalance != 0)
+            .Include(l=> l.AppUser)
+            .Include(l=> l.Semester)
+            .Select(x=>x.ToDefaultLeviesDto())
+            .ToListAsync();
+
+            var totalDefault = await _context.Levies
+            .Where(x => x.ToBalance != 0)
+            .SumAsync(x => x.ToBalance);
+
+            return Ok(new{
+                totalDefault=totalDefault,
+                defaulting = defaultstudent
+            });
+        }
 
     }
 }

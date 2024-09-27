@@ -22,6 +22,7 @@ namespace backend.Data
         public DbSet<Semester> Semesters {get; set;}
         public DbSet<Levy> Levies {get; set;}
         public DbSet<Clearance> Clearances {get; set;}
+        public DbSet<Transaction> Transactions {get; set;}
 
         
 
@@ -63,6 +64,8 @@ namespace backend.Data
                 }
             };
             modelBuilder.Entity<IdentityRole>().HasData(roles);
+
+            
         }
 
         }

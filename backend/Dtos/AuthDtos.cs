@@ -60,4 +60,13 @@ namespace backend.Dtos
         public string? Password2 { get; set; }
     }
 
+
+    public class AdminStudentChangePasswordDto
+    {
+        [Required]
+        public string? Password1 { get; set; }
+        [Required]
+        public string? Password2 { get; set; }
+    }
+
 }

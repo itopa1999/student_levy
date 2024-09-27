@@ -7,7 +7,7 @@
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class DetailsToAppUSer : Migration
+    public partial class initsfix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,32 +15,30 @@ namespace backend.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "a1aa2cfa-0008-49ef-b628-1e1ce5a98810");
+                keyValue: "c792b442-2f9a-41b1-90d5-8231bbc2ec97");
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "ccc28d2f-e70c-42d4-a699-85441ed5466d");
+                keyValue: "fbd4c20a-5721-4272-b187-1bfbef0c06c9");
 
-            migrationBuilder.AddColumn<string>(
-                name: "FirstName",
+            migrationBuilder.AlterColumn<int>(
+                name: "OtpId",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "LastName",
-                table: "AspNetUsers",
-                type: "nvarchar(max)",
-                nullable: true);
+                type: "int",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "989b926c-a22f-4ca9-bb9b-913eeb06face", null, "Admin", "ADMIN" },
-                    { "f71f43de-f6c4-443b-a73e-41c3ba164b31", null, "Student", "STUDENT" }
+                    { "3d92f40f-096f-4169-bf3b-dc9910462537", null, "Student", "STUDENT" },
+                    { "b66db80f-db95-4cf4-b0a5-bd99cb2fefa3", null, "Admin", "ADMIN" }
                 });
         }
 
@@ -50,28 +48,28 @@ namespace backend.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "989b926c-a22f-4ca9-bb9b-913eeb06face");
+                keyValue: "3d92f40f-096f-4169-bf3b-dc9910462537");
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "f71f43de-f6c4-443b-a73e-41c3ba164b31");
+                keyValue: "b66db80f-db95-4cf4-b0a5-bd99cb2fefa3");
 
-            migrationBuilder.DropColumn(
-                name: "FirstName",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropColumn(
-                name: "LastName",
-                table: "AspNetUsers");
+            migrationBuilder.AlterColumn<int>(
+                name: "OtpId",
+                table: "AspNetUsers",
+                type: "int",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "int");
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "a1aa2cfa-0008-49ef-b628-1e1ce5a98810", null, "Admin", "ADMIN" },
-                    { "ccc28d2f-e70c-42d4-a699-85441ed5466d", null, "Student", "STUDENT" }
+                    { "c792b442-2f9a-41b1-90d5-8231bbc2ec97", null, "Admin", "ADMIN" },
+                    { "fbd4c20a-5721-4272-b187-1bfbef0c06c9", null, "Student", "STUDENT" }
                 });
         }
     }

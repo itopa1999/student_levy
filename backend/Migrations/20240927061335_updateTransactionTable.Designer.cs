@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240924161852_ClearanceLevy")]
-    partial class ClearanceLevy
+    [Migration("20240927061335_updateTransactionTable")]
+    partial class updateTransactionTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,13 +54,13 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ad7d4ad3-ab09-4a29-a4f6-a9da1068d498",
+                            Id = "6ae5123b-ed5c-41f4-8b40-d46b60a93a1c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "d289c9a1-4915-4fd4-97c9-e35ecfe2abea",
+                            Id = "ea5b7dc3-3956-4e57-a8cb-88b93853a7ec",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         });
@@ -180,6 +180,9 @@ namespace backend.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -283,9 +286,14 @@ namespace backend.Migrations
                     b.Property<string>("PdfFilePath")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SemesterId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
+
+                    b.HasIndex("SemesterId");
 
                     b.ToTable("Clearances");
                 });
@@ -334,6 +342,9 @@ namespace backend.Migrations
 
                     b.Property<int>("SemesterId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("ToBalance")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -392,6 +403,44 @@ namespace backend.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Semesters");
+                });
+
+            modelBuilder.Entity("backend.models.Transaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LevyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("LevyId");
+
+                    b.ToTable("Transaction");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -461,7 +510,15 @@ namespace backend.Migrations
                         .WithMany()
                         .HasForeignKey("AppUserId");
 
+                    b.HasOne("backend.models.Semester", "Semester")
+                        .WithMany("Clearances")
+                        .HasForeignKey("SemesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("AppUser");
+
+                    b.Navigation("Semester");
                 });
 
             modelBuilder.Entity("backend.models.Levy", b =>
@@ -502,11 +559,30 @@ namespace backend.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("backend.models.Transaction", b =>
+                {
+                    b.HasOne("backend.models.AppUser", "AppUser")
+                        .WithMany("Transactions")
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("backend.models.Levy", "Levy")
+                        .WithMany("Transactions")
+                        .HasForeignKey("LevyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Levy");
+                });
+
             modelBuilder.Entity("backend.models.AppUser", b =>
                 {
                     b.Navigation("Levies");
 
                     b.Navigation("Otp");
+
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("backend.models.Department", b =>
@@ -516,8 +592,15 @@ namespace backend.Migrations
                     b.Navigation("Semesters");
                 });
 
+            modelBuilder.Entity("backend.models.Levy", b =>
+                {
+                    b.Navigation("Transactions");
+                });
+
             modelBuilder.Entity("backend.models.Semester", b =>
                 {
+                    b.Navigation("Clearances");
+
                     b.Navigation("Levies");
                 });
 #pragma warning restore 612, 618

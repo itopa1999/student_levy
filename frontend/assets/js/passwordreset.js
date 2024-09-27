@@ -31,7 +31,7 @@ document.querySelector('.resetPassword-form').addEventListener('submit', functio
     loginText.classList.add('d-none');
 
     // Send the login request
-    fetch('http://localhost:5087/auth/api/forgot/password', {
+    fetch('http://localhost:5087/auth/api/forgot/password/', {
         method: 'POST',
         body: JSON.stringify(Object.fromEntries(formData.entries())), // Convert form data to JSON
         headers: {

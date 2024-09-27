@@ -11,6 +11,7 @@ namespace backend.models
         public string? MatricNo { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public decimal Balance { get; set; } = 0;
         public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
         public bool IsAdmin { get; set; } = false;
@@ -21,7 +22,7 @@ namespace backend.models
         public Department? Department { get; set; }
 
         public ICollection<Levy> Levies { get; set; } = new List<Levy>();
-
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
         public int? OtpId { get; set; }
         public Otp? Otp { get; set; }
     }

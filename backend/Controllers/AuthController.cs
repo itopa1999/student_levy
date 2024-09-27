@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+ 
 namespace backend.Controllers
 {
     [Route("auth/api")]
@@ -44,7 +44,7 @@ namespace backend.Controllers
         }
 
 
-        [HttpPost("create/admin")]
+        [HttpPost("create/admin/")]
         public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminDto createAdminDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -66,15 +66,15 @@ namespace backend.Controllers
                     return StatusCode(201, new {message = $"Admin Account Successfully Created for {createAdminDto.Username}"});
                 }else{return StatusCode(500, new {message = role.Errors});}
                 
-              }else{return StatusCode(500, new {message = userModel.Errors});}
-
+              }else{return StatusCode(500, new {message = userModel.Errors});
+              }
             }catch(Exception e) {
                 return StatusCode(500, new {message = e});
             }
             
         }
 
-        [HttpPost("login/admin")]
+        [HttpPost("login/admin/")]
         public async Task<IActionResult> LoginAdmin([FromBody] LoginDto loginDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -87,15 +87,13 @@ namespace backend.Controllers
                 if (!loginUser.Succeeded){
                     return BadRequest(new { message = "incorrect credentials"});
                 }else{
-                    var roles = await _userManager.GetRolesAsync(user);
                     return StatusCode (200,new {
                     message = "login successfully",
                     firstname = user.FirstName,
                     lastname = user.LastName,
                     email = user.Email,
-                    roles,
-                    IsAdmin = user.IsAdmin,
-                    IsStudent = user.IsStudent,
+                    isAdmin = user.IsAdmin,
+                    isStudent = user.IsStudent,
                     username = user.UserName,
                     token = _token.CreateToken(user),
                 });
@@ -103,7 +101,7 @@ namespace backend.Controllers
             }
         }
         
-        [HttpPost("forgot/password")]
+        [HttpPost("forgot/password/")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -135,7 +133,7 @@ namespace backend.Controllers
             
         }
 
-        [HttpPost("verify/otp")]
+        [HttpPost("verify/otp/")]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto verifyOtpDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -172,7 +170,7 @@ namespace backend.Controllers
 
         }
 
-        [HttpPost("change/password")]
+        [HttpPost("change/password/")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto passwordDto){
             if (!ModelState.IsValid){
@@ -200,12 +198,32 @@ namespace backend.Controllers
             return Ok(new { message = "Password changed successfully" });
         }
 
-        [HttpPost("logout")]
+        [HttpGet("logout/")]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return Ok(new { message = "User logged out successfully" });
+        }
+
+        [HttpGet("get/user/data/")]
+        [Authorize]
+        public async Task<IActionResult> GetUserDetails(){
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+            return StatusCode(200, new{
+                isAdmin = user.IsAdmin,
+                isStudent = user.IsStudent,
+                firstname = user.FirstName,
+                });
         }
 
     }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240926213055_initsfixx")]
+    partial class initsfixx
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0560c7fb-3932-4731-8cba-7cc53fa25e22",
+                            Id = "3013c6a0-aacb-4135-899c-8642bb01d2d4",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "30559682-6379-4ce8-b266-2505e60a6d7b",
+                            Id = "29c06820-a8c0-499e-b6a2-ec21faf09958",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         });
@@ -283,14 +286,9 @@ namespace backend.Migrations
                     b.Property<string>("PdfFilePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SemesterId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
-
-                    b.HasIndex("SemesterId");
 
                     b.ToTable("Clearances");
                 });
@@ -402,47 +400,6 @@ namespace backend.Migrations
                     b.ToTable("Semesters");
                 });
 
-            modelBuilder.Entity("backend.models.Transaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("LevyId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Method")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransID")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("LevyId");
-
-                    b.ToTable("Transactions");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -510,15 +467,7 @@ namespace backend.Migrations
                         .WithMany()
                         .HasForeignKey("AppUserId");
 
-                    b.HasOne("backend.models.Semester", "Semester")
-                        .WithMany("Clearances")
-                        .HasForeignKey("SemesterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("AppUser");
-
-                    b.Navigation("Semester");
                 });
 
             modelBuilder.Entity("backend.models.Levy", b =>
@@ -559,30 +508,11 @@ namespace backend.Migrations
                     b.Navigation("Department");
                 });
 
-            modelBuilder.Entity("backend.models.Transaction", b =>
-                {
-                    b.HasOne("backend.models.AppUser", "AppUser")
-                        .WithMany("Transactions")
-                        .HasForeignKey("AppUserId");
-
-                    b.HasOne("backend.models.Levy", "Levy")
-                        .WithMany("Transactions")
-                        .HasForeignKey("LevyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Levy");
-                });
-
             modelBuilder.Entity("backend.models.AppUser", b =>
                 {
                     b.Navigation("Levies");
 
                     b.Navigation("Otp");
-
-                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("backend.models.Department", b =>
@@ -592,15 +522,8 @@ namespace backend.Migrations
                     b.Navigation("Semesters");
                 });
 
-            modelBuilder.Entity("backend.models.Levy", b =>
-                {
-                    b.Navigation("Transactions");
-                });
-
             modelBuilder.Entity("backend.models.Semester", b =>
                 {
-                    b.Navigation("Clearances");
-
                     b.Navigation("Levies");
                 });
 #pragma warning restore 612, 618

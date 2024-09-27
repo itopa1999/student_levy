@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginText.classList.add('d-none');
 
         // Send the login request
-        fetch('http://localhost:5087/auth/api/login/admin', {
+        fetch('http://localhost:5087/auth/api/login/admin/', {
             method: 'POST',
             body: JSON.stringify(Object.fromEntries(formData.entries())), // Convert form data to JSON
             headers: {
@@ -43,21 +43,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (response.ok) {
                 return response.json().then(data => {
-                    // Success - handle the data
+                    console.log(data)
                     localStorage.setItem('levy_token', data.token);
-                    localStorage.setItem('levy_username', data.username);                    
-                    const roles = data.roles.$values;
-                    if (roles && roles.includes('Admin')) {
-                        window.location.href = 'index.html';
-                    } else if (roles.includes('Student')) {
+                    
+                    if (data.isAdmin===true) {
+                        window.location.href = 'dashboard.html';
+                    } else if (data.isStudent===true) {
                         window.location.href = 'index.html';
                     } else {
+                        localStorage.removeItem('levy_token');
                         window.location.href = 'login.html';
                     }
                 });
             } else if (response.status === 400) {
                 return response.json().then(data => {
-                    // Display error message for incorrect credentials
                     errorMessage.innerText = data.message || 'Invalid credentials.';
                     errorAlert.classList.remove('d-none');
                 });
@@ -66,7 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorMessage.innerText = 'An error occurred. Please try again later.';
                 errorAlert.classList.remove('d-none');
             }
-        })
+        }).catch(error => {
+            console.error('Error:', error);
+            errorMessage.innerText = 'An unexpected error occurred.';
+            errorAlert.classList.remove('d-none');
+            spinner.classList.add('d-none');
+            loginText.classList.remove('d-none');
+        });
         
     });
 

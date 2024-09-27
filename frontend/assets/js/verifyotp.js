@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginText.classList.add('d-none');
     
         // Send the login request
-        fetch('http://localhost:5087/auth/api/verify/otp', {
+        fetch('http://localhost:5087/auth/api/verify/otp/', {
             method: 'POST',
             body: JSON.stringify(Object.fromEntries(formData.entries())), // Convert form data to JSON
             headers: {

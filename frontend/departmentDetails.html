@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Index</title>
+  <title>Department</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
   <link href="assets/img/favicon.png" rel="icon">
@@ -23,7 +23,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="dashboard.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="index">
         <span class="d-none d-lg-block">Attendeemt</span>
       </a>
@@ -52,7 +52,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="index.html">
+        <a class="nav-link collapsed" href="dashboard.html">
           <i class="bi bi-grid"></i>
           <span>Home</span>
         </a>
@@ -60,24 +60,24 @@
       
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="levy.html">
+        <a class="nav-link collapsed" href="department.html">
           <i class="bi bi-question-circle"></i>
-          <span>School Levies</span>
+          <span>Department</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="transactions.html">
+        <a class="nav-link collapsed" href="student.html">
           <i class="bi bi-question-circle"></i>
-          <span>Transactions</span>
+          <span>Student</span>
         </a>
       </li>
-      
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="clearance.html">
+      <li class="nav-item"></li>
+        <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
-          <span>Clearance</span>
+          <span>Default Student</span>
         </a>
       </li>
+   
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" id="logoutBtn">
           <i class="bi bi-box-arrow-in-left"></i>
@@ -91,11 +91,12 @@
 <main id="main" class="main">
 
 <div class="pagetitle">
-    <h1>Levies</h1>
+    <h1>Department Details</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-        <li class="breadcrumb-item active">Levies</li>
+        <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+        <li class="breadcrumb-item"><a href="department.html">Department</a></li>
+        <li class="breadcrumb-item active">Department Details</li>
         <li class="breadcrumb-item"></li>
       </ol>
     </nav>
@@ -106,17 +107,15 @@
       <div class="col-xxl-4 col-md-4">
         <div class="card info-card sales-card">
           <div class="card-body">
-            <h5 class="card-title"> <strong id="DepartmentName"></strong></h5>
+            <h5 class="card-title"> <strong id="departmentName"></strong></h5>
 
             <div class="d-flex align-items-center">
               <div class="ps-3">
-                <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="academicYearDep"></span> <br>
-                </p>
-                  <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="ProTypeDepartment"></span> <br>
-                  </p>
+                <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="departmentAcademyYear"></span> <br>
+                    <span id="departmentProgramType"></span></p>
+                <p></p>
               </div>
             </div>
-            
           </div>
 
         </div>
@@ -124,35 +123,51 @@
 
     </div>
 
-
-
     <div class="card">
-      <div class="card-body">
+        <div class="card-body">
 
-        <!-- Bordered Tabs Justified -->
-        <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist">
-          <li class="nav-item flex-fill" role="presentation">
-            <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
-          </li>
-        </ul>
-        <div class="tab-content pt-2" id="borderedTabJustifiedContent">
-          <div class="tab-pane fade show active" id="bordered-justified-home" role="tabpanel" aria-labelledby="home-tab">
-              <div class="accordion accordion-flush" id="accordionFlushExample">
-                
+          <!-- Bordered Tabs Justified -->
+          <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist">
+            <li class="nav-item flex-fill" role="presentation">
+              <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-home" type="button" role="tab" aria-controls="home" aria-selected="true">Semesters</button>
+            </li>
+            <li class="nav-item flex-fill" role="presentation">
+              <button class="nav-link w-100" id="profile-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Students</button>
+            </li>
+          </ul>
+          <div class="tab-content pt-2" id="borderedTabJustifiedContent">
+            <div class="tab-pane fade show active" id="bordered-justified-home" role="tabpanel" aria-labelledby="home-tab">
+            <p class="mt-3">
+                <ul class="list-group" id="semester-container">
+                    
+                  </ul>
+            </p>
             </div>
-          </div>
-        </div><!-- End Bordered Tabs Justified -->
+            <div class="tab-pane fade" id="bordered-justified-profile" role="tabpanel" aria-labelledby="profile-tab">
+                <ol class="list-group list-group-numbered mt-3" id="student-container">
+                    
+                  </ol>
+            </div>
+          </div><!-- End Bordered Tabs Justified -->
 
+        </div>
       </div>
-    </div>
+
+
+   
+
+<div class="alert alert-danger fade show d-none" id="error-alert">
+  <strong>Error! </strong> <span id="error-message"></span>
+</div>
+<div class="alert alert-success fade show d-none" id="success-alert">
+  <strong>Success! </strong> <span id="success-message"></span>
+</div>
 
 
 
-  </section>
 
+  </main><!-- End #main -->
 
-
-</main><!-- End #main -->
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="credits">
@@ -179,7 +194,7 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/studlevy.js"></script>
+  <script src="assets/js/departmentDetails.js"></script>
 
 </body>
 

@@ -23,7 +23,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="dashboard.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="index">
         <span class="d-none d-lg-block">Attendeemt</span>
       </a>
@@ -52,7 +52,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="index.html">
+        <a class="nav-link collapsed" href="dashboard.html">
           <i class="bi bi-grid"></i>
           <span>Home</span>
         </a>
@@ -71,27 +71,15 @@
           <span>Student</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="levy.html">
+      <li class="nav-item"></li>
+        <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
-          <span>School Levies</span>
+          <span>Default Student</span>
         </a>
       </li>
+   
       <li class="nav-item">
-        <a class="nav-link collapsed" href="payment.html">
-          <i class="bi bi-question-circle"></i>
-          <span>Make Payment</span>
-        </a>
-      </li>
-      
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="clearance.html">
-          <i class="bi bi-question-circle"></i>
-          <span>Clearance</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="logout">
+        <a class="nav-link collapsed" href="#" id="logoutBtn">
           <i class="bi bi-box-arrow-in-left"></i>
           <span>Logout</span>
         </a>
@@ -106,10 +94,10 @@
     <h1>Department</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
         <li class="breadcrumb-item active"></li>
       </ol>
-    </nav>
+    </nav> 
   </div><!-- End Page Title -->
 
   <section class="section dashboard profile">
@@ -117,26 +105,7 @@
         <button class="btn btn text-white rounded-0 md-4" data-bs-toggle="modal" data-bs-target="#addDepartmentModal" style="background-color: rgb(19, 73, 143);">
             Add Department</button>
     </div>
-    <div class="row mt-4">
-      <div class="col-xxl-4 col-md-4">
-        <div class="card info-card sales-card">
-          <div class="card-body">
-            <h5 class="card-title"> <strong> Outstanding Fee</strong></h5>
-
-            <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
-                </div>
-              <div class="ps-3">
-                <p style="font-weight: 600; color: rgb(1, 30, 68);"><span>sadasdsd</span> <br>
-                    <span>sadasdsd</span></p>
-                <p></p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+    <div class="row mt-4" id="card-container">
 
     </div>
 
@@ -150,12 +119,7 @@
             </div>
             <div class="modal-body">
                 <form  class="row g-3 needs-validation addDepartment-form" novalidate>
-                    <div class="alert alert-danger fade show d-none" id="error-alert">
-                      <strong>Error! </strong> <span id="error-message"></span>
-                    </div>
-                    <div class="alert alert-success fade show d-none" id="success-alert">
-                      <strong>Success! </strong> <span id="success-message"></span>
-                    </div>
+                    
                     <div class="col-12">
                       <div class="input-group has-validation">
                         <input type="text" name="name" class="form-control" id="yourUsername" 
@@ -194,6 +158,53 @@
         </div>
       </div>
 
+
+      <!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog " style="width: 400px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Update Department</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form  class="row g-3 needs-validation updateDepartment-form" novalidate>
+                <div class="col-12">
+                  <div class="input-group has-validation">
+                      <input type="text" name="name" class="form-control" id="itemName" placeholder="Name" required>
+                      <div class="invalid-feedback">Please enter Name.</div>
+                    </div>
+                  </div>
+                  <div class="col-12 mt-3">
+                    <div class="input-group has-validation">
+                      <input type="text" name="academicyear" class="form-control" id="academicYear" placeholder="Academic Year" required>
+                      <div class="invalid-feedback">Please enter Academic Year.</div>
+                    </div>
+                  </div>
+                  <div class="col-12 mt-3">
+                    <div class="input-group has-validation">
+                      <input type="text" class="form-control" name="programtype" id="programType" placeholder="program Type" required>
+                      <div class="invalid-feedback">Please enter Program Type.</div>
+                    </div>
+                  </div>
+                  <input type="hidden" id="itemId" value="">
+                  <div class="col-12">
+                    <button class="btn btn-primary w-100" type="submit"><span class="" id="submit-text">Submit <i class="bi bi-arrow-right"></i>
+                    </span> <div id="spinner" class="spinner-border text-white d-none"></div></button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div class="alert alert-danger fade show d-none" id="error-alert">
+  <strong>Error! </strong> <span id="error-message"></span>
+</div>
+<div class="alert alert-success fade show d-none" id="success-alert">
+  <strong>Success! </strong> <span id="success-message"></span>
+</div>
 
 
 

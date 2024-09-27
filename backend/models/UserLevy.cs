@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace backend.models
 {
+    
 
 
     public class Department
@@ -33,6 +34,7 @@ namespace backend.models
         public int DepartmentId { get; set; }
         public Department? Department { get; set; }
         public ICollection<Levy> Levies { get; set; } = new List<Levy>();
+        public ICollection<Clearance> Clearances { get; set; } = new List<Clearance>();
     }
 
     public class Levy
@@ -40,7 +42,8 @@ namespace backend.models
         public int Id { get; set; }
         public string? Name { get; set; }
         public decimal Amount { get; set; }
-        public DateOnly CreatedAt { get; set; }
+        public decimal ToBalance { get; set; } = 0;
+        public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
 
         public string? AppUserId { get; set; }
@@ -48,6 +51,8 @@ namespace backend.models
 
         public int SemesterId { get; set; }
         public Semester? Semester { get; set; }
+
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 
     public class Clearance
@@ -58,7 +63,34 @@ namespace backend.models
         public string? PdfFilePath { get; set; }
         public string? AppUserId { get; set; }
         public AppUser? AppUser { get; set; }
+
+        public int SemesterId { get; set; }
+        public Semester? Semester { get; set; }
     }
+
+    public class Transaction
+    {
+        public int Id { get; set; }
+        public decimal Amount { get; set; }
+        public string? TransID { get; set; } = GenerateUUID();
+        public string? Method { get; set; }
+        public string? Description { get; set; }
+        public bool IsCompleted { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public string? AppUserId { get; set; }
+        public AppUser? AppUser { get; set; }
+
+        public int LevyId { get; set; }
+        public Levy? Levy { get; set; }
+
+        private static string GenerateUUID()
+        {
+            return Guid.NewGuid().ToString();
+        }
+    }
+
+
     
 
 

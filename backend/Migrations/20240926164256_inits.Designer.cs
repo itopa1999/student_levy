@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240923144922_DetailsModels")]
-    partial class DetailsModels
+    [Migration("20240926164256_inits")]
+    partial class inits
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,13 +54,13 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "192b2895-7c9a-4694-97a4-d2695c8f9321",
+                            Id = "c792b442-2f9a-41b1-90d5-8231bbc2ec97",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "57f7561b-0625-4aee-8def-772ac4d3c582",
+                            Id = "fbd4c20a-5721-4272-b187-1bfbef0c06c9",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         });
@@ -180,6 +180,9 @@ namespace backend.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -187,7 +190,7 @@ namespace backend.Migrations
                     b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("date");
 
-                    b.Property<int?>("DepartmentId")
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -263,6 +266,33 @@ namespace backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("backend.models.Clearance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PdfFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Clearances");
+                });
+
             modelBuilder.Entity("backend.models.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -283,6 +313,41 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("backend.models.Levy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SemesterId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ToBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("SemesterId");
+
+                    b.ToTable("Levies");
                 });
 
             modelBuilder.Entity("backend.models.Otp", b =>
@@ -391,9 +456,36 @@ namespace backend.Migrations
                     b.HasOne("backend.models.Department", "Department")
                         .WithMany("AppUsers")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("backend.models.Clearance", b =>
+                {
+                    b.HasOne("backend.models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("backend.models.Levy", b =>
+                {
+                    b.HasOne("backend.models.AppUser", "AppUser")
+                        .WithMany("Levies")
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("backend.models.Semester", "Semester")
+                        .WithMany("Levies")
+                        .HasForeignKey("SemesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Semester");
                 });
 
             modelBuilder.Entity("backend.models.Otp", b =>
@@ -419,6 +511,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.models.AppUser", b =>
                 {
+                    b.Navigation("Levies");
+
                     b.Navigation("Otp");
                 });
 
@@ -427,6 +521,11 @@ namespace backend.Migrations
                     b.Navigation("AppUsers");
 
                     b.Navigation("Semesters");
+                });
+
+            modelBuilder.Entity("backend.models.Semester", b =>
+                {
+                    b.Navigation("Levies");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Index</title>
+  <title>Dashboard</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
   <link href="assets/img/favicon.png" rel="icon">
@@ -23,7 +23,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="dashboard.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="index">
         <span class="d-none d-lg-block">Attendeemt</span>
       </a>
@@ -52,7 +52,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="index.html">
+        <a class="nav-link collapsed" href="dashboard.html">
           <i class="bi bi-grid"></i>
           <span>Home</span>
         </a>
@@ -71,27 +71,15 @@
           <span>Student</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="levy.html">
+      <li class="nav-item"></li>
+        <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
-          <span>School Levies</span>
+          <span>Default Student</span>
         </a>
       </li>
+    </span>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="payment.html">
-          <i class="bi bi-question-circle"></i>
-          <span>Make Payment</span>
-        </a>
-      </li>
-      
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="clearance.html">
-          <i class="bi bi-question-circle"></i>
-          <span>Clearance</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="logout">
+        <a class="nav-link collapsed" href="#" id="logoutBtn">
           <i class="bi bi-box-arrow-in-left"></i>
           <span>Logout</span>
         </a>
@@ -103,19 +91,68 @@
 <main id="main" class="main">
 
 <div class="pagetitle">
-    <h1>Payment</h1>
+    <h1>Dashboard</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-        <li class="breadcrumb-item active">Payment</li>
-        <li class="breadcrumb-item"></li>
+        <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+        <li class="breadcrumb-item active"></li>
       </ol>
     </nav>
   </div><!-- End Page Title -->
 
+  <section class="section dashboard profile">
+    <div class="col-xxl-4 col-md-6">
+        <div class="card info-card sales-card">
+          <div class="card-body">
+            <h5 class="card-title"> <strong> Total Defaults Fee</strong></h5>
+
+            <div class="d-flex align-items-center">
+                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i class="bi bi-people"></i>
+                </div>
+              <div class="ps-3">
+                <h6 id="defaultAmount"></h6>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    <div class="row mt-4" id="card-container">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title">Recent Transactions</h5>
+  
+              <div class="table-responsive">
+                <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Student Name</th>
+                <th scope="col">Levy Name</th>
+                <th scope="col">Semester Name</th>
+                <th scope="col">Amount</th>
+                <th scope="col">ToBalance</th>
+                <th scope="col">CreatedAt</th>
+                </tr>
+            </thead>
+            <tbody class="table-container">
+                
+            </tbody>
+            </table>
+            </div>
+  
+          </div>
+          </div>
+      </div>
 
 
-</main><!-- End #main -->
+</section>
+
+  </main><!-- End #main -->
+
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="credits">
@@ -142,7 +179,7 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/jquery-3.6.1.min.js"></script>
+  <script src="assets/js/default.js"></script>
 
 </body>
 

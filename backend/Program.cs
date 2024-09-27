@@ -116,6 +116,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options => {
 builder.Services.AddScoped<IJwtRepository, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddSingleton<IAuthorizationHandler, GroupHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, OwnerOrReadOnlyHandler>();
 

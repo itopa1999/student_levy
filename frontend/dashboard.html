@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Index</title>
+  <title>Dashboard</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
   <link href="assets/img/favicon.png" rel="icon">
@@ -23,7 +23,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="dashboard.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="index">
         <span class="d-none d-lg-block">Attendeemt</span>
       </a>
@@ -52,7 +52,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="index.html">
+        <a class="nav-link collapsed" href="dashboard.html">
           <i class="bi bi-grid"></i>
           <span>Home</span>
         </a>
@@ -60,24 +60,24 @@
       
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="levy.html">
+        <a class="nav-link collapsed" href="department.html">
           <i class="bi bi-question-circle"></i>
-          <span>School Levies</span>
+          <span>Department</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="transactions.html">
+        <a class="nav-link collapsed" href="student.html">
           <i class="bi bi-question-circle"></i>
-          <span>Transactions</span>
+          <span>Student</span>
         </a>
       </li>
-      
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="clearance.html">
+      <li class="nav-item"></li>
+        <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
-          <span>Clearance</span>
+          <span>Default Student</span>
         </a>
       </li>
+    </span>
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" id="logoutBtn">
           <i class="bi bi-box-arrow-in-left"></i>
@@ -91,68 +91,89 @@
 <main id="main" class="main">
 
 <div class="pagetitle">
-    <h1>Levies</h1>
+    <h1>Dashboard</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-        <li class="breadcrumb-item active">Levies</li>
-        <li class="breadcrumb-item"></li>
+        <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+        <li class="breadcrumb-item active"></li>
       </ol>
     </nav>
   </div><!-- End Page Title -->
 
   <section class="section dashboard profile">
-    <div class="row mt-4" id="card-container">
-      <div class="col-xxl-4 col-md-4">
+    <div class="row">
+      <div class="col-xxl-4 col-md-6">
         <div class="card info-card sales-card">
           <div class="card-body">
-            <h5 class="card-title"> <strong id="DepartmentName"></strong></h5>
+            <h5 class="card-title"> <strong> Total Students</strong></h5>
 
             <div class="d-flex align-items-center">
+                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i class="bi bi-people"></i>
+                </div>
               <div class="ps-3">
-                <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="academicYearDep"></span> <br>
-                </p>
-                  <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="ProTypeDepartment"></span> <br>
-                  </p>
+                <h6 id="t_student">0</h6>
+
               </div>
             </div>
-            
           </div>
 
         </div>
       </div>
+      <div class="col-xxl-4 col-md-6">
+        <div class="card info-card revenue-card">
+          <div class="card-body">
+            <h5 class="card-title"> <strong> Total Departments</strong></h5>
 
-    </div>
+            <div class="d-flex align-items-center">
+                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i class="bi bi-people"></i>
+                </div>
+              <div class="ps-3">
+                <h6 id="t_department">0</h6>
 
-
-
-    <div class="card">
-      <div class="card-body">
-
-        <!-- Bordered Tabs Justified -->
-        <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist">
-          <li class="nav-item flex-fill" role="presentation">
-            <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
-          </li>
-        </ul>
-        <div class="tab-content pt-2" id="borderedTabJustifiedContent">
-          <div class="tab-pane fade show active" id="bordered-justified-home" role="tabpanel" aria-labelledby="home-tab">
-              <div class="accordion accordion-flush" id="accordionFlushExample">
-                
+              </div>
             </div>
           </div>
-        </div><!-- End Bordered Tabs Justified -->
 
+        </div>
       </div>
     </div>
 
+    <div class="row mt-4" id="card-container">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title">Recent Transactions</h5>
+  
+              <div class="table-responsive">
+                <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Student Name</th>
+                <th scope="col">Levy Name</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Description</th>
+                <th scope="col">Method</th>
+                <th scope="col">CreatedAt</th>
+                <th scope="col">TranID</th>
+                </tr>
+            </thead>
+            <tbody class="table-container">
+                
+            </tbody>
+            </table>
+            </div>
+  
+          </div>
+          </div>
+      </div>
 
 
-  </section>
+</section>
 
+  </main><!-- End #main -->
 
-
-</main><!-- End #main -->
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="credits">
@@ -179,7 +200,7 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/studlevy.js"></script>
+  <script src="assets/js/dashboard.js"></script>
 
 </body>
 

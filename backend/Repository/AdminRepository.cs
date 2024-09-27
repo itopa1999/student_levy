@@ -36,6 +36,45 @@ namespace backend.Repository
             return department;
         }
 
+        public async Task<Levy?> CreateLevyAsync(Levy levy)
+        {
+            var students = await _userManager.Users.Where(x => x.IsStudent == true && x.Department.Semesters.Any(s => s.Id == levy.SemesterId))
+                            .ToListAsync();
+            if (students.Count == 0){
+                return null;
+            }
+            var studentLevies = new List<Levy>();
+            foreach (var student in students)
+            {
+                var studentLevy = new Levy
+                {
+                    AppUserId = student.Id,
+                    SemesterId = levy.SemesterId,
+                    Amount = levy.Amount,
+                    Name = levy.Name,
+                    ToBalance = levy.Amount
+                };
+                
+                studentLevies.Add(studentLevy);
+                student.Balance += levy.Amount;
+
+                await _userManager.UpdateAsync(student);
+            }
+
+            await _context.Levies.AddRangeAsync(studentLevies);
+            await _context.SaveChangesAsync();
+
+            return levy;
+
+        }
+
+        public async Task<Transaction> CreatePayStudentLevyAsync(Transaction transaction)
+        {
+            await _context.Transactions.AddAsync(transaction);
+            await _context.SaveChangesAsync();
+            return transaction;
+        }
+
         public async Task<ListDepartmentDto?> GetDepartmentAsync(int id)
         {
             var department = await _context.Departments
@@ -53,10 +92,44 @@ namespace backend.Repository
             return departmentDto;
         }
 
+        public async Task<GetSemesterDetailsDto?> GetSemesterDetailsAsync(int id)
+        {
+            var semester = await _context.Semesters
+            .Include(l => l.Levies)
+            .Include(l => l.Department)
+            .FirstOrDefaultAsync(x=>x.Id == id);
+            if (semester == null)
+            {
+                return null;
+            }
+            var semesterDto = new GetSemesterDetailsDto
+            {
+                Id = semester.Id,
+                Name = semester.Name,
+                DepartmentName = semester.Department?.Name,
+                // Use Distinct to filter out Levies with the same Name
+                Levies = semester.Levies
+                    .GroupBy(l => l.Name) // Group by the name
+                    .Select(g => g.First()) // Select the first levy from each group
+                    .Select(levy => new SemesterLevyDto
+                    {
+                        Id = levy.Id,
+                        Name = levy.Name,
+                        Amount = levy.Amount,
+                        CreatedAt = levy.CreatedAt,
+                    })
+                    .ToList() // Convert to List<SemesterLevyDto>
+            };
+            return semesterDto;
+        }
+
         public async Task<StudentDetailsDto?> GetStudentDetailsAsync(string id)
         {
             var student = await _userManager.Users
             .Include(x => x.Department)
+            .Include(x=> x.Transactions)
+            .Include(x=> x.Levies)
+            .ThenInclude(l => l.Semester)
             .FirstOrDefaultAsync(x => x.Id == id);
 
             if (student == null)
@@ -78,6 +151,7 @@ namespace backend.Repository
         {
             var students =  await _userManager.Users
             .Where(x=>x.IsStudent == true)
+            .Include(l=> l.Department)
             .Select(x => x.ToStudentDto())
             .ToListAsync();
 
@@ -86,6 +160,10 @@ namespace backend.Repository
 
         public async Task<AppUser> StudentDepartmentCreateAsync(AppUser appUser, int DepartmentId)
         {
+            var existingDepartment = await _context.Departments.FindAsync(DepartmentId);
+            if (existingDepartment == null){
+                
+            }
             appUser.DepartmentId = DepartmentId;
             await _context.SaveChangesAsync();
             return appUser;
