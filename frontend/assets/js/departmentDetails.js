@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.innerHTML =""
                 stu_container.innerHTML =""
                 if (data.semesters.$values.length === 0) {
-                    container.innerHTML = `
+                  const cardHtml = `
                       <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
                         <h5>No data found</h5>
                       </div>
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
                 if (data.students.$values.length === 0) {
-                    stu_container.innerHTML = `
+                  const cardHtml = `
                       <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
                         <h5>No data found</h5>
                       </div>
