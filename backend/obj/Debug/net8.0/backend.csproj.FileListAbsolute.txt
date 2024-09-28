@@ -146,3 +146,4 @@ C:\Users\FMY-381\Desktop\projects\student_levy\backend\bin\Debug\net8.0\runtimes
 C:\Users\FMY-381\Desktop\projects\student_levy\backend\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\FMY-381\Desktop\projects\student_levy\backend\bin\Debug\net8.0\CsvHelper.dll
 C:\Users\FMY-381\Desktop\projects\student_levy\backend\bin\Debug\net8.0\ExcelDataReader.dll
+C:\Users\FMY-381\Desktop\projects\student_levy\backend\bin\Debug\net8.0\DinkToPdf.dll

@@ -1,7 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const token = localStorage.getItem('levy_token')
-    
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const successAlert = document.getElementById('success-alert');
+    const successMessage = document.getElementById('success-message');
+
+    // Reset previous messages
+    errorAlert.classList.add('d-none');
+    errorMessage.innerHTML = '';
+    successAlert.classList.add('d-none');
+    successMessage.innerHTML = '';
 
     fetch('http://localhost:5087/admin/api/list/department/', {
         method: 'GET',
@@ -10,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 const container = document.getElementById('card-container');
                 container.innerHTML =""
@@ -68,8 +77,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     programTypeInput.value = programType;
                 });
             })
+        }else{
+            return response.json().then(data => {
+            errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+            errorAlert.classList.remove('d-none');
+            })
         }
-    })
+    }).catch(error => {
+        errorMessage.innerText = 'Server is not responding. Please try again later.';
+        errorAlert.classList.remove('d-none');
+      })
 
     
     document.querySelector('.updateDepartment-form').addEventListener('submit', function(event) {
@@ -110,20 +127,17 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "updated successfully";
                     successAlert.classList.remove('d-none');
                 });
-            }else if (response.status === 400) {
+            }else{
                 return response.json().then(data => {
                     // Display error message for incorrect credentials
-                    errorMessage.innerText = data.message;
+                    errorMessage.innerText = data.message ||'An error occurred. Please try again later.';
                     errorAlert.classList.remove('d-none');
-            });
-            }else {
-                errorMessage.innerText = 'An error occurred. Please try again later.';
-                errorAlert.classList.remove('d-none');
+                })
             }
         })
         
@@ -187,16 +201,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     successAlert.classList.remove('d-none');
                     
                 });
-            } else if (response.status === 400) {
-                return response.json().then(data => {
-                    // Display error message for incorrect credentials
-                    errorMessage.innerText = data.message;
-                    errorAlert.classList.remove('d-none');
-                });
+
             } else {
+                return response.json().then(data => {
                 // Handle other error statuses
-                errorMessage.innerText = 'An error occurred. Please try again later.';
+                errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
                 errorAlert.classList.remove('d-none');
+                })
             }
         })
         

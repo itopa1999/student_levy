@@ -334,12 +334,17 @@ document.addEventListener('DOMContentLoaded', function() {
         'Authorization': 'Bearer ' + token
     }
   }).then(response => {
-    if (response.ok) {
+    if (response.status ===403){
+      localStorage.removeItem('levy_token');
+      window.location.href = 'login.html';
+    }else if (response.status ===200) {
       return response.json().then(data => {
+        console.log(data);
         if (data.isAdmin===true) {
-          console.log('Admin');
+          
+          document.getElementById('firstName').innerHTML=data.firstname
         } else if (data.isStudent===true) {
-          console.log('d-none');
+          document.getElementById('firstName').innerHTML=data.firstname
         } else {
           localStorage.removeItem('levy_token');
           window.location.href = 'login.html';

@@ -2,14 +2,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const token = localStorage.getItem('levy_token')
     const Id = new URLSearchParams(window.location.search).get('id');
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const successAlert = document.getElementById('success-alert');
+    const successMessage = document.getElementById('success-message');
 
+    // Reset previous messages
+    errorAlert.classList.add('d-none');
+    errorMessage.innerHTML = '';
+    successAlert.classList.add('d-none');
+    successMessage.innerHTML = '';
     fetch(`http://localhost:5087/admin/api/get/students/details/${Id}`, {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 document.getElementById("stuName").innerHTML = data.firstName + " " +  data.lastName;
                 document.getElementById("stuFullName").innerHTML = data.firstName + " " +  data.lastName;
@@ -24,6 +33,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById("matricno").value = data.matricNo;
                 document.getElementById("stuID").value = data.id;
                 document.getElementById("studentId").value = data.id;
+                document.getElementById("studentIDs").value = data.id;
+                var id =data.id;
+                
+                fetch(`http://localhost:5087/admin/api/get/student/semester/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(response => {
+                    if (response.status===200) {
+                        return response.json().then(data => {
+                        const selectElement = document.getElementById('semesterID');
+                        data.$values.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;  // set the value as id
+                        option.textContent = item.name;  // set the display text as name
+                        selectElement.appendChild(option);
+                    });
+                        })
+                    }else{
+                        const selectElement = document.getElementById('semesterID');
+                        selectElement.innerHTML = "unexpected error occurred"
+                    }
+                })
                 const container = document.getElementById('accordionFlushExample');
                 container.innerHTML = ""
                 if (data.levies.$values.length === 0) {
@@ -64,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             }
-                console.log(data)
                 const updateModal = document.getElementById('PayModal');
                 updateModal.addEventListener('show.bs.modal', event => {
                     const button = event.relatedTarget; // Button that triggered the modal
@@ -116,9 +149,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             });
         }else {
-            errorMessage.innerText = 'An error occurred. Please try again later.';
+            return response.json().then(data => {
+            errorMessage.innerText = data.message || 'Unexpected error occurred. Please try again later.';
             errorAlert.classList.remove('d-none');
+            })
         }
+    }).catch(error => {
+        errorMessage.innerText = 'Server is not responding. Please try again later.';
+        errorAlert.classList.remove('d-none');
     })
 
 
@@ -160,19 +198,17 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "Payment successfully";
                     successAlert.classList.remove('d-none');
                 });
-            }else if (response.status === 400) {
-                return response.json().then(data => {
-                    errorMessage.innerText = data.message;
-                    errorAlert.classList.remove('d-none');
-            });
+            
             }else {
-                errorMessage.innerText = 'An error occurred. Please try again later.';
+                return response.json().then(data => {
+                errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
                 errorAlert.classList.remove('d-none');
+                })
             }
         })
         
@@ -181,9 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     
-
-
-
 
     document.querySelector('.updateStudent-form').addEventListener('submit', function(event) {
         const id = document.getElementById('stuID').value;
@@ -223,18 +256,13 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "updated successfully";
                     successAlert.classList.remove('d-none');
                 });
-            }else if (response.status === 400 || response.status === 409) {
-                return response.json().then(data => {
-                    errorMessage.innerText = data.message || "MatricNo already exists";
-                    errorAlert.classList.remove('d-none');
-            });
             }else {
-                errorMessage.innerText = 'An error occurred. Please try again later.';
+                errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
                 errorAlert.classList.remove('d-none');
             };
         });
@@ -281,12 +309,12 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
-                    successMessage.innerText = data.message || "updated successfully";
+                    successMessage.innerText = data.message || "changed successfully";
                     successAlert.classList.remove('d-none');
                 });
-            }else if (response.status === 400 || response.status === 409) {
+            }else {
                 return response.json().then(data => {
                     if (data.message && data.message.$values && data.message.$values.length > 0) {
                         // Extract the description from the first item in the $values array
@@ -300,11 +328,71 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     errorAlert.classList.remove('d-none');
             });
-            }else {
-                errorMessage.innerText = 'An error occurred. Please try again later.';
-                errorAlert.classList.remove('d-none');
-            };
+        }
         });
+
+    })
+
+
+
+        document.querySelector('.addStudentLevy-form').addEventListener('submit', function(event) {
+            const id = document.getElementById("studentIDs").value
+            event.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            if (!form.checkValidity()) {
+                event.stopPropagation();
+                form.classList.add('was-validated'); // This will show the validation messages
+                return;
+            }
+            const spinner = document.getElementById('spinner');
+            const submitText = document.getElementById('submit-text');
+            const errorAlert = document.getElementById('error-alert');
+            const errorMessage = document.getElementById('error-message');
+            const successAlert = document.getElementById('success-alert');
+            const successMessage = document.getElementById('success-message');
+            // Reset previous messages
+            errorAlert.classList.add('d-none');
+            errorMessage.innerHTML = '';
+            successAlert.classList.add('d-none');
+            successMessage.innerHTML = '';
+            
+            // Show spinner, hide login text
+            spinner.classList.remove('d-none');
+            submitText.classList.add('d-none');
+            fetch(`http://localhost:5087/admin/api/add/levy/student/${id}`, {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData.entries())), // Convert form data to JSON
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => {
+                spinner.classList.add('d-none');
+                submitText.classList.remove('d-none');
+                
+                if (response.status===200) {
+                    return response.json().then(data => {
+                        successMessage.innerText = data.message || "Created successfully";
+                        successAlert.classList.remove('d-none');
+                    });
+                }else{
+                    return response.json().then(data => {
+                        if (data.message && data.message.$values && data.message.$values.length > 0) {
+                            // Extract the description from the first item in the $values array
+                            const errorDescription = data.message.$values[0].description;
+                
+                            // Display the error message
+                            errorMessage.innerText = errorDescription;
+                        } else {
+                            // Handle case where no error description is available
+                            errorMessage.innerText = data.message || 'An error occurred. Please try again later.';
+                        }
+                        errorAlert.classList.remove('d-none');
+                });
+                }
+            });
 
 
     });

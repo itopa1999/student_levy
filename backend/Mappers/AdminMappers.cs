@@ -163,5 +163,15 @@ namespace backend.Mappers
         }
 
 
+        public static GetAddLevySemesterDto ToGetAddSemesterDto(this Semester semester){
+            return new GetAddLevySemesterDto{
+                Name = semester.Name,
+                Id = semester.Id
+            };
+        }
+
+
+
+
     }
 }

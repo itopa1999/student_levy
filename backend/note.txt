@@ -16,6 +16,13 @@ dotnet add package Newtonsoft.Json
 dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson
 
 
+
+
+dotnet add package Microsoft.Extensions.Http
+dotnet add package DinkToPdf.Contracts
+dotnet add package DinkToPdf
+
+
 dotnet add package ExcelDataReader
 dotnet add package CsvHelper
 

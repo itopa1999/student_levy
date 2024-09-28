@@ -2,7 +2,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const token = localStorage.getItem('levy_token')
     const Id = new URLSearchParams(window.location.search).get('id');
+    const errorAlert = document.getElementById('error-alert');
+        const errorMessage = document.getElementById('error-message');
+        const successAlert = document.getElementById('success-alert');
+        const successMessage = document.getElementById('success-message');
 
+        // Reset previous messages
+        errorAlert.classList.add('d-none');
+        errorMessage.innerHTML = '';
+        successAlert.classList.add('d-none');
+        successMessage.innerHTML = '';
     fetch(`http://localhost:5087/admin/api/get/levy/details/${Id}`, {
         method: 'GET',
         headers: {
@@ -10,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 document.getElementById('semesterName').innerHTML = data.name;
                 document.getElementById('semesterDepartment').innerHTML = data.departmentName;
@@ -43,6 +52,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             })
         
+        }else {
+            return response.json().then(data => {
+            // Handle other error statuses
+            errorMessage.innerText = 'An error occurred. Please try again later.';
+            errorAlert.classList.remove('d-none');
+            })
         }
     });
 
@@ -94,23 +109,20 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     document.querySelector('.addLevy-form').reset();
                     successMessage.innerText = data.message;
                     successAlert.classList.remove('d-none');
                     
                 });
-            } else if (response.status === 400) {
-                return response.json().then(data => {
-                    // Display error message for incorrect credentials
-                    errorMessage.innerText = data.message;
-                    errorAlert.classList.remove('d-none');
-                });
+            
             } else {
+                return response.json().then(data => {
                 // Handle other error statuses
                 errorMessage.innerText = 'An error occurred. Please try again later.';
                 errorAlert.classList.remove('d-none');
+                })
             }
         })
         

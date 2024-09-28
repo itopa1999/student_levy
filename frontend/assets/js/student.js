@@ -1,7 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const token = localStorage.getItem('levy_token')
-    
+    const Id = new URLSearchParams(window.location.search).get('id');
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const successAlert = document.getElementById('success-alert');
+    const successMessage = document.getElementById('success-message');
+
+    // Reset previous messages
+    errorAlert.classList.add('d-none');
+    errorMessage.innerHTML = '';
+    successAlert.classList.add('d-none');
+    successMessage.innerHTML = '';
 
     fetch('http://localhost:5087/admin/api/list/students', {
         method: 'GET',
@@ -10,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 const tableBody = document.querySelector('.table-container'); // Target table body
                 tableBody.innerHTML = ''; // Clear any existing rows
@@ -40,7 +50,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             }
             })
+        }else{
+            return response.json().then(data => {
+            errorMessage.innerText = data.message || 'Unexpected error occurred. Please try again later.';
+            errorAlert.classList.remove('d-none');
+            })
         }
+    }).catch(error => {
+        errorMessage.innerText = 'Server is not responding. Please try again later.';
+        errorAlert.classList.remove('d-none');
     })
 
 
@@ -51,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
             const selectElement = document.getElementById('departmentSelect');
             data.$values.forEach(item => {
@@ -61,6 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
             selectElement.appendChild(option);
         });
             })
+        }else{
+            const selectElement = document.getElementById('departmentSelect');
+            selectElement.innerHTML = "unexpected error occurred"
         }
     })
 
@@ -112,19 +133,14 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     document.querySelector('.addStudent-form').reset();
                     successMessage.innerText = data.message;
                     successAlert.classList.remove('d-none');
                 });
-            } else if (response.status === 400) {
-                return response.json().then(data => {
-                    errorMessage.innerText = data.message;
-                    errorAlert.classList.remove('d-none');
-                });
-            }else if (response.status === 500) {
-                return response.json().then(data => {
+            } else{
+                    return response.json().then(data => {
                     console.log(data.message.$values)
                     if (data.message && data.message.$values && data.message.$values.length > 0) {
                         // Extract the description from the first item in the $values array
@@ -141,14 +157,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorAlert.classList.remove('d-none');
                 });
             
-            } else {
-                // Handle other error statuses
-                errorMessage.innerText = 'An error occurred. Please try again later.';
-                errorAlert.classList.remove('d-none');
+            
             }
         })
         
-    });
+        
+    })
 
 
 })

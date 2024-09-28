@@ -182,6 +182,22 @@ namespace backend.Dtos
         public string? StudentLName { get; set; }
         public DateOnly CreatedAt { get; set; }
     }
+
+
+
+    public class GetAddLevySemesterDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+    }
+
+
+    public class GetAddLevyDepartmentDto
+    {
+        public string? Name { get; set; }
+        public List<GetAddLevySemesterDto>? Semesters {get; set;} = new List<GetAddLevySemesterDto>();
+
+    }
     
 
 }

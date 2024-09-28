@@ -75,6 +75,26 @@ namespace backend.Repository
             return transaction;
         }
 
+        public async Task<Levy?> CreateStudentLevyAsync(Levy levy, string id)
+        {
+            var createlevy = new Levy{
+                AppUserId = id,
+                SemesterId = levy.SemesterId,
+                Amount = levy.Amount,
+                Name = levy.Name,
+                ToBalance = levy.Amount
+            };
+            var student = await _userManager.FindByIdAsync(id);
+            student.Balance += levy.Amount;
+
+
+            await _context.Levies.AddAsync(createlevy);
+            await _context.SaveChangesAsync();
+
+            return createlevy;
+
+        }
+
         public async Task<ListDepartmentDto?> GetDepartmentAsync(int id)
         {
             var department = await _context.Departments

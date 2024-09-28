@@ -42,24 +42,24 @@ document.querySelector('.resetPassword-form').addEventListener('submit', functio
         spinner.classList.add('d-none');
         loginText.classList.remove('d-none');
         
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
             localStorage.setItem('passwordUsername', data.username);
             localStorage.setItem('passwordMessage', data.message);
             window.location.href = 'verifyotp.html';
 
             })
-        }else if (response.status === 400) {
-            return response.json().then(data => {
-                // Display error message for incorrect credentials
-                errorMessage.innerText = data.message || 'An error occurred.';
-                errorAlert.classList.remove('d-none');
-            });
         }else {
-            // Handle other error statuses
-            errorMessage.innerText = 'An error occurred. Please try again later.';
+            return response.json().then(data => {
+            errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
             errorAlert.classList.remove('d-none');
+            })
         }
-    });
-});
-});
+    }).catch(error => {
+        spinner.classList.add('d-none');
+        loginText.classList.remove('d-none');
+        errorMessage.innerText = 'Server is not responding. Please try again later.';
+        errorAlert.classList.remove('d-none');
+      })
+})
+})

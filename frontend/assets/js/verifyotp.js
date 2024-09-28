@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             loginText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                 localStorage.removeItem('passwordUsername');
                 localStorage.removeItem('passwordMessage');
@@ -60,18 +60,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'login.html';
     
                 })
-            }else if (response.status === 400) {
+            }else{
                 return response.json().then(data => {
                     // Display error message for incorrect credentials
                     errorMessage.innerText = data.message || data.errors.Username;
                     errorAlert.classList.remove('d-none');
                 });
-            }else {
-                // Handle other error statuses
-                errorMessage.innerText = 'An error occurred. Please try again later.';
-                errorAlert.classList.remove('d-none');
             }
-        });
+        }).catch(error => {
+            spinner.classList.add('d-none');
+            loginText.classList.remove('d-none');
+            errorMessage.innerText = 'Server is not responding. Please try again later.';
+            errorAlert.classList.remove('d-none');
+          })
     });
     });
     

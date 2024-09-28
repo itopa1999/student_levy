@@ -2,7 +2,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const token = localStorage.getItem('levy_token')
     const Id = new URLSearchParams(window.location.search).get('id');
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const successAlert = document.getElementById('success-alert');
+    const successMessage = document.getElementById('success-message');
 
+    // Reset previous messages
+    errorAlert.classList.add('d-none');
+    errorMessage.innerHTML = '';
+    successAlert.classList.add('d-none');
+    successMessage.innerHTML = '';
     fetch(`http://localhost:5087/student/api/get/levies/details`, {
         method: 'GET',
         headers: {
@@ -10,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 document.getElementById('DepartmentName').innerHTML = data.name;
                 document.getElementById('academicYearDep').innerHTML = data.academicYear;
@@ -42,6 +51,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="ms-2 me-auto">
                                         <div class="fw-bold">${levy.name}</div>
                                         <span style="font-size: 0.85rem;">CreatedAt: ${levy.createdAt}</span>
+                                        <div class="mt-2"><a href="#" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#stuPayModal" 
+                                          data-id="${levy.id}" data-toBalance="${levy.toBalance}" data-name="${levy.name}" data-semester="${levy.semesterName}">
+                                          pay
+                                        </a>
+                                        </div>
                                     </div>
                                     <a href="#!" class="btn btn-secondary btn-sm" style="font-size:0.78em">Amt: ${levy.amount}</a>
                                     <a href="#!" class="btn btn-success btn-sm" style="font-size:0.78em">TB: ${levy.toBalance}</a>
@@ -55,10 +69,41 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 
             }
+            const updateModal = document.getElementById('stuPayModal');
+            updateModal.addEventListener('show.bs.modal', event => {
+              const button = event.relatedTarget; // Button that triggered the modal
+              const id = button.getAttribute('data-id');
+              const name = button.getAttribute('data-name');
+              const toBalance = button.getAttribute('data-toBalance');
+              const semester = button.getAttribute('data-semester');
+              console.log(toBalance)
+
+              
+              const itemIdInput = document.getElementById('itemId');
+              const itemAmountInput = document.getElementById('itemAmount');
+              const title = document.getElementById('title');
+              const description = document.getElementById('itemDescription');
+              
+
+              itemIdInput.value = id;
+              itemAmountInput.value = toBalance;
+              itemAmountInput.max = toBalance;
+              description.value = name +" Payment for "+ semester
+              title.innerHTML = "Pay for "+ semester + " " + name + " (ToBalance: " + toBalance +" )";
+          });
                 
             })
+        }else{
+          return response.json().then(data => {
+          errorMessage.innerText =data.message || 'unexpected error ocurred. Please try again later.';
+          errorAlert.classList.remove('d-none');
+          })
         }
 
+    })
+    .catch(error => {
+      errorMessage.innerText = 'Server is not responding. Please try again later.';
+      errorAlert.classList.remove('d-none');
     })
 
 

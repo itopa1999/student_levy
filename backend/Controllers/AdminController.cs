@@ -36,6 +36,7 @@ namespace backend.Controllers
 
         [HttpPost("create/department/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> CreateDepartment([FromBody] CreateDepartmentDto departmentDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -68,6 +69,7 @@ namespace backend.Controllers
 
         [HttpGet("list/department/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> ListDepartment(){
             var departments = await _adminRepo.ListDepartmentAsync();
             return Ok(departments);
@@ -76,6 +78,7 @@ namespace backend.Controllers
 
         [HttpGet("get/department/details/{id:int}/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> GetDepartmentDetails([FromRoute] int id){
             var departments = await _adminRepo.GetDepartmentAsync(id);
             if (departments == null){
@@ -87,6 +90,7 @@ namespace backend.Controllers
 
         [HttpPut("update/department/details/{id:int}/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> UpdateDepartmentDetails([FromRoute] int id, [FromBody] UpdateDepartmentDto updateDepartmentDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -116,6 +120,7 @@ namespace backend.Controllers
 
         [HttpPost("create/student/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> CreateStudent([FromBody] CreateStudentDto createStudentDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -152,6 +157,7 @@ namespace backend.Controllers
 
     [HttpPost("upload/students/")]
     [Authorize]
+    [Authorize(Policy = "IsAdmin")]
     public async Task<IActionResult> UploadStudent(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -250,6 +256,7 @@ namespace backend.Controllers
 
         [HttpGet("get/students/details/{id}/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> GetStudentDetails(string id){
             var student = await _adminRepo.GetStudentDetailsAsync(id);
             if (student == null){
@@ -261,6 +268,7 @@ namespace backend.Controllers
 
         [HttpGet("list/students/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> ListStudents(){
             var students = await _adminRepo.ListStudentAsync();
             if (students == null){
@@ -273,6 +281,7 @@ namespace backend.Controllers
 
         [HttpPut("update/student/details/{id}/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> UpdateStudentDetails([FromRoute] string id, [FromBody] UpdateStudentDetailsDto studentDetailsDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -287,6 +296,7 @@ namespace backend.Controllers
 
         [HttpGet("admin/dashboard/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> Dashboard(){
             var t_student = await _userManager.Users.Where(x=>x.IsStudent == true).CountAsync();
             var t_department = await _context.Departments.CountAsync();
@@ -317,6 +327,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("get/department/")]
+        [Authorize(Policy = "IsAdmin")]
         
         public async Task<IActionResult> GetDetails(){
             var departments = await _context.Departments.ToListAsync();
@@ -331,6 +342,7 @@ namespace backend.Controllers
 
         [HttpPost("change/student/password/{id}/")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> ChangePassword([FromBody] AdminStudentChangePasswordDto passwordDto, [FromRoute] string id){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -354,7 +366,8 @@ namespace backend.Controllers
 
 
         [HttpPost("create/levy")]
-        //[Authorize]
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> CreateLevy([FromBody] CreateLevyDto levyDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -373,13 +386,14 @@ namespace backend.Controllers
                 if (createdLevy == null){
                     return BadRequest(new{message="No student to assign levies for semester"});
                 }
-                return Ok(new {message=$"{levyDto.Name} successfullly added"});
+                return Ok(new {message=$"{levyDto.Name} successfully added"});
 
             }return BadRequest(new{message=$"levy already exists for this Name: {levyDto.Name}"});
         }
 
         [HttpGet("get/levy/details/{id:int}")]
-        
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> GetSemesterDetails([FromRoute] int id){
             var checkSemester = await _context.Semesters.FindAsync(id);
             if (checkSemester == null){
@@ -395,6 +409,7 @@ namespace backend.Controllers
 
         [HttpPost("pay/student/levy")]
         [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> PayStudentLevy([FromBody] PayStudentLevyDto payDto){
             if (!ModelState.IsValid){
                 return BadRequest(ModelState);
@@ -436,7 +451,8 @@ namespace backend.Controllers
 
 
         [HttpGet("defaulting/students")]
-
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> DefaultStudent(){
             var defaultstudent = await _context.Levies
             .Where(x=>x.ToBalance != 0)
@@ -453,6 +469,51 @@ namespace backend.Controllers
                 totalDefault=totalDefault,
                 defaulting = defaultstudent
             });
+        }
+
+        [HttpGet("get/student/semester/{id}")]
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> GetStudentSemester([FromRoute] string id){
+            var student = await _userManager.FindByIdAsync(id);
+            if (student == null ){
+                return BadRequest(new{message="Student not found"});
+            }
+            var semester =  _context.Semesters.Where(x=>x.DepartmentId == student.DepartmentId);
+            var semesterDto = semester.Select(d => d.ToGetAddSemesterDto()).ToList();
+
+            return Ok(semesterDto);
+        }
+
+        
+        [HttpPost("add/levy/student/{id}")]
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> AddLevyStudent([FromRoute] string id, [FromBody] CreateLevyDto createLevyDto){
+            if (!ModelState.IsValid){
+                return BadRequest(ModelState);
+            }
+            if (createLevyDto.Amount <= 0 ){
+                return BadRequest(new{message="Amount must be greater than 0"});
+            }
+            var checkedSemester = await _context.Semesters.FindAsync(createLevyDto.SemesterId);
+            if (checkedSemester == null){
+                return BadRequest(new{message=$"semester not found for this iD: {createLevyDto.SemesterId}"});
+            }
+            var student = await _userManager.FindByIdAsync(id);
+            if (student == null ){
+                return BadRequest(new{message="Student not found"});
+            }
+            var existingLevy = await _context.Levies.FirstOrDefaultAsync(x=>x.Name == createLevyDto.Name && x.SemesterId == createLevyDto.SemesterId);
+            if (existingLevy == null){
+                var levy = createLevyDto.ToCreateLevyDto();
+                var createdLevy = await _adminRepo.CreateStudentLevyAsync(levy, id);
+                if (createdLevy == null){
+                    return BadRequest(new{message="No student to assign levies for semester"});
+                }
+                return Ok(new {message=$"{createLevyDto.Name} successfully added for {student.FirstName}"});
+
+            }return BadRequest(new{message=$"levy already exists for this Name: {createLevyDto.Name}"});
         }
 
     }

@@ -1,10 +1,10 @@
 using backend.Data;
-using backend.Handlers;
 using backend.Interfaces;
 using backend.models;
 using backend.Repository;
-using backend.Requirements;
 using backend.Services;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,21 +22,10 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("IsStudent", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.Requirements.Add(new GroupRequirement("Student"));  // Only "student"
-    });
+        policy.RequireClaim("IsStudent", "True"));
 
     options.AddPolicy("IsAdmin", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.Requirements.Add(new GroupRequirement("Admin"));  // Only "admin"
-    });
-    options.AddPolicy("IsOwnerOrReadOnly", policy =>
-    {
-        policy.Requirements.Add(new OwnerOrReadOnlyRequirement());
-    });
-
+        policy.RequireClaim("IsAdmin", "True"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -117,8 +106,7 @@ builder.Services.AddScoped<IJwtRepository, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-builder.Services.AddSingleton<IAuthorizationHandler, GroupHandler>();
-builder.Services.AddSingleton<IAuthorizationHandler, OwnerOrReadOnlyHandler>();
+builder.Services.AddScoped<ReceiptPDFService>();
 
 builder.Services.AddCors(options =>
 {
@@ -127,6 +115,12 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
+
+
+
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+builder.Services.AddScoped<ReceiptPDFService>();
+// builder.Services.AddScoped<FlutterwaveService>();
 
 
 var app = builder.Build();

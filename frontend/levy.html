@@ -6,8 +6,7 @@
   <title>Index</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="assets/img/favicon.jpeg" rel="icon">
   <link href="https://fonts.gstatic.com" rel="preconnect">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -24,8 +23,8 @@
 
     <div class="d-flex align-items-center justify-content-between">
       <a href="index.html" class="logo d-flex align-items-center">
-        <img src="assets/img/logo.png" alt="index">
-        <span class="d-none d-lg-block">Attendeemt</span>
+        <img src="assets/img/logo.jpeg" alt="index">
+        <span class="d-none d-lg-block">StaFees</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
@@ -36,7 +35,7 @@
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="assets/profile_pic.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block ps-2">Admin</span>
+            <span class="d-none d-md-block ps-2" id="firstName"></span>
           </a>
           </ul>
         </li>
@@ -132,19 +131,50 @@
         <!-- Bordered Tabs Justified -->
         <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist">
           <li class="nav-item flex-fill" role="presentation">
-            <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
+            <button class="nav-link w-100 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#bordered-justified-home" type="button" role="tab" aria-controls="home" aria-selected="true">Levies List</button>
           </li>
         </ul>
         <div class="tab-content pt-2" id="borderedTabJustifiedContent">
           <div class="tab-pane fade show active" id="bordered-justified-home" role="tabpanel" aria-labelledby="home-tab">
               <div class="accordion accordion-flush" id="accordionFlushExample">
-                
+                levy                
             </div>
           </div>
         </div><!-- End Bordered Tabs Justified -->
 
       </div>
     </div>
+
+
+
+    <div class="modal fade" id="stuPayModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+      <div class="modal-dialog " style="width: 400px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form  class="row g-3 needs-validation StudentPay-form" novalidate>
+                  <div class="col-12">
+                    <div class="input-group has-validation">
+                        <input type="number" name="amount" class="form-control" id="itemAmount" min="1"  step="1" placeholder="Enter Pay Amount" required>
+                        <div class="invalid-feedback">Please enter Amount not greater than ToBalance</div>
+                      </div>
+                    </div>
+                    <input type="hidden" id="itemId" name="levyid" value="">
+                    <input type="hidden"  name="method" value="Checkout Payment">
+                    <input type="hidden" id="itemDescription" name="description" value="">
+                    <input type="hidden" id="studentId" name="appuserid" value="">
+                    <div class="col-12">
+                      <button class="btn btn-primary w-100" type="submit"><span class="" id="submit-text">Proceed payment <i class="bi bi-arrow-right"></i>
+                      </span> <div id="spinner" class="spinner-border text-white d-none"></div></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
 
 
 

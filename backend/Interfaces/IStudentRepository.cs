@@ -10,5 +10,6 @@ namespace backend.Interfaces
     public interface IStudentRepository
     {
         Task<StuGetDepartmentDto?> GetDepartmentAsync(int id,  string appUserId);
+        Task<StudentGetDepartmentDto?> GetClearanceAsync(int id,  string appUserId);
     }
 }

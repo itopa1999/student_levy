@@ -23,6 +23,7 @@ namespace backend.Interfaces
         Task<Levy?> CreateLevyAsync(Levy levy);
         Task<GetSemesterDetailsDto?> GetSemesterDetailsAsync(int id);
         Task<Transaction> CreatePayStudentLevyAsync(Transaction transaction);
+        Task<Levy?> CreateStudentLevyAsync(Levy levy, string id);
 
         
     }

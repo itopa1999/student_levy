@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
           'Authorization': 'Bearer ' + token
       }
     }).then(response => {
-        if (response.ok) {
+        if (response.status===200) {
           return response.json().then(data => {
             console.log(data.transactions.$values)
             t_department.innerHTML = data.t_department;
@@ -55,10 +55,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
           })
         }else {
+          return response.json().then(data => {
           // Handle other error statuses
-          errorMessage.innerText = 'An error occurred. Please try again later.';
+          errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
           errorAlert.classList.remove('d-none');
+          })
         }
+    }).catch(error => {
+      errorMessage.innerText = 'Server is not responding. Please try again later.';
+      errorAlert.classList.remove('d-none');
     })
 
 })

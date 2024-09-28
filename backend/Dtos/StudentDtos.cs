@@ -34,4 +34,33 @@ namespace backend.Dtos
         public List<StudentSemesterDto>? Semesters {get; set;} = new List<StudentSemesterDto>();
 
     }
+
+
+
+    public class StudentGetDepartmentDto
+    {
+        public int DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? AcademicYear { get; set; }
+        public string? ProgramType { get; set; }
+        public List<StuSemesterDto> Semesters { get; set; } = new List<StuSemesterDto>();
+    }
+
+    public class StuSemesterDto
+    {
+        public int SemesterId { get; set; }
+        public string? SemesterName { get; set; }
+        public decimal TotalToBalance { get; set; }
+        // public List<StuLevyDto> Levies { get; set; } = new List<StuLevyDto>();
+    }
+
+    public class StuLevyDto
+    {
+        public int LevyId { get; set; }
+        public string? Name { get; set; }
+        public decimal Amount { get; set; }
+        public decimal ToBalance { get; set; }
+        public DateOnly CreatedAt { get; set; }
+    }
+
 }

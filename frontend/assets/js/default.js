@@ -3,13 +3,22 @@ document.addEventListener('DOMContentLoaded', function() {
     if (token == null && token == 'undefined') {
       window.location.href = 'login.html';
     }
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+    const successAlert = document.getElementById('success-alert');
+    const successMessage = document.getElementById('success-message');
+    // Reset previous messages
+    errorAlert.classList.add('d-none');
+    errorMessage.innerHTML = '';
+    successAlert.classList.add('d-none');
+    successMessage.innerHTML = '';
     fetch('http://localhost:5087/admin/api/defaulting/students', {
       method: 'GET',
       headers: {
           'Authorization': 'Bearer ' + token
       }
     }).then(response => {
-        if (response.ok) {
+        if (response.status===200) {
           return response.json().then(data => {
             console.log(data)
             document.getElementById('defaultAmount').innerHTML = data.totalDefault;
@@ -40,10 +49,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
           })
         }else {
+          return response.json().then(data => {
           // Handle other error statuses
-          errorMessage.innerText = 'An error occurred. Please try again later.';
+          errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
           errorAlert.classList.remove('d-none');
+          })
         }
-    })
+    }).catch(error => {
+      errorMessage.innerText = 'Server is not responding. Please try again later.';
+      errorAlert.classList.remove('d-none');
+  })
 
 })
