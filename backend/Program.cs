@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using backend.Data;
 using backend.Interfaces;
 using backend.models;
@@ -11,12 +13,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // controller
-builder.Services.AddControllers().AddJsonOptions(x => 
-        x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve);
+builder.Services.AddControllers().AddJsonOptions(options => 
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve; // Handle circular references
+});
+
 // controller
 
 builder.Services.AddAuthorization(options =>
@@ -27,6 +35,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("IsAdmin", policy =>
         policy.RequireClaim("IsAdmin", "True"));
 });
+
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.status===200) {
+        if (response.ok) {
             return response.json().then(data => {
                 document.getElementById('DepartmentName').innerHTML = data.departmentName;
                 document.getElementById('academicYearDep').innerHTML = data.academicYear;
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <p style="font-weight: 600; color: rgb(1, 30, 68);">
                                     <!-- Show ToBalance value -->
                                     <span style="font-weight:bolder" class="${item.totalToBalance > 0 ? 'text-danger' : 'text-success'}">
-                                        ToBalance: ${item.totalToBalance}
+                                        ToBalance: ₦${item.totalToBalance.toFixed(2)}
                                     </span><br>
                                 </p>
 

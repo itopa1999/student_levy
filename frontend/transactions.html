@@ -17,6 +17,29 @@
   <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
+
+  <style>
+    a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: #f1f1f1;
+  color: black;
+}
+  </style>
 </head>
 <body>
   <header id="header" class="header fixed-top d-flex align-items-center">
@@ -109,10 +132,10 @@
 
             <div class="d-flex align-items-center">
                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
+                  <i class="bi bi-currency-exchange"></i>
                 </div>
               <div class="ps-3">
-                <h6 id="t_amount">0</h6>
+                <h6 id="t_amount"></h6>
 
               </div>
             </div>
@@ -127,10 +150,10 @@
 
             <div class="d-flex align-items-center">
                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
+                  <i class="bi bi-currency-exchange"></i>
                 </div>
               <div class="ps-3">
-                <h6 id="t_bill">0</h6>
+                <h6 id="t_bill"></h6>
 
               </div>
             </div>
@@ -145,10 +168,10 @@
 
             <div class="d-flex align-items-center">
                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
+                  <i class="bi bi-currency-exchange"></i>
                 </div>
               <div class="ps-3">
-                <h6 id="t_tobal">0</h6>
+                <h6 id="t_tobal"></h6>
 
               </div>
             </div>
@@ -162,7 +185,13 @@
       <div class="card">
           <div class="card-body">
               <h5 class="card-title">Transactions</h5>
-  
+              <input type="text" name="FilterOptions" class="w-10 form-control" id="searchInput" placeholder="Filter by TranID, Amount, Description, TranRef">
+              <select name="OrderOptions" class="select mt-3 form-control" id='orderingSelect'>
+                <option value="">---- Sort by ----</option>
+                <option value="Amount">Amount</option>
+                <option value="TranID">TranID</option>
+                <option value="Date">Date</option>
+              </select>
               <div class="table-responsive">
                 <table class="table table-striped">
             <thead>
@@ -173,7 +202,7 @@
                 <th scope="col">Description</th>
                 <th scope="col">Method</th>
                 <th scope="col">CreatedAt</th>
-                <th scope="col">TranID</th>
+                <th scope="col">TranRef</th>
                 <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -182,6 +211,8 @@
             </tbody>
             </table>
             </div>
+            <a href="#" class="previous" id="prevPage">&laquo; Previous</a>
+            <a href="#" class="next" id="nextPage">Next &raquo;</a>
   
           </div>
           </div>

@@ -41,3 +41,6 @@ dotnet ef migrations add init
 
 [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be a positive number with two decimal places.")]
 [DataType(DataType.Currency)]
+
+
+.

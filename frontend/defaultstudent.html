@@ -17,6 +17,28 @@
   <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
+  <style>
+    a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: #f1f1f1;
+  color: black;
+}
+  </style>
 </head>
 <body>
   <header id="header" class="header fixed-top d-flex align-items-center">
@@ -70,7 +92,13 @@
           <span>Student</span>
         </a>
       </li>
-      <li class="nav-item"></li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="adminTransaction.html">
+          <i class="bi bi-question-circle"></i>
+          <span>Transactions</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
           <span>Default Student</span>
@@ -107,7 +135,7 @@
 
             <div class="d-flex align-items-center">
                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-people"></i>
+                  <i class="bi bi-currency-exchange"></i>
                 </div>
               <div class="ps-3">
                 <h6 id="defaultAmount"></h6>
@@ -122,8 +150,10 @@
     <div class="row mt-4" id="card-container">
       <div class="card">
           <div class="card-body">
-              <h5 class="card-title">Recent Transactions</h5>
-  
+              <h5 class="card-title">Defaulted Students</h5>
+              <div class="m-3">
+                <input type="text" name="FilterOptions" class="w-10 form-control" id="searchInput" placeholder="Filter by FirstName, LastName, MatricNo, Levy Name, Semester Name">
+              </div>
               <div class="table-responsive">
                 <table class="table table-striped">
             <thead>
@@ -142,6 +172,8 @@
             </tbody>
             </table>
             </div>
+            <a href="#" class="previous" id="prevPage">&laquo; Previous</a>
+            <a href="#" class="next" id="nextPage">Next &raquo;</a>
   
           </div>
           </div>

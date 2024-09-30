@@ -13,15 +13,49 @@ document.addEventListener('DOMContentLoaded', function() {
     successAlert.classList.add('d-none');
     successMessage.innerHTML = '';
 
-    fetch('http://localhost:5087/admin/api/list/students', {
+    let currentPage = 1;
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        currentPage = 1;
+        fetchStudents();
+      });
+
+      document.getElementById('prevPage').addEventListener('click', function(e) {
+          e.preventDefault();
+          if (currentPage > 1) {
+              currentPage--;
+              fetchStudents();
+          }
+      });
+
+      document.getElementById('nextPage').addEventListener('click', function(e) {
+          e.preventDefault();
+          currentPage++;
+          fetchStudents();
+      });
+
+      function fetchStudents() {
+
+          const searchInput = document.getElementById('searchInput').value;
+          const url = `http://localhost:5087/admin/api/list/students?FilterOptions=${searchInput}&PageNumber=${currentPage}`
+
+    fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + token
         }
     })
     .then(response => {
-        if (response.status===200) {
-            return response.json().then(data => {
+        if (response.ok) {
+            return response.json();
+        } else {
+          return response.json().then(data => {
+              // Handle other error statuses
+              errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+              errorAlert.classList.remove('d-none');
+            })
+        }
+    }).then(data => {
                 const tableBody = document.querySelector('.table-container'); // Target table body
                 tableBody.innerHTML = ''; // Clear any existing rows
 
@@ -49,17 +83,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     tableBody.innerHTML += rowHtml;
                 })
             }
-            })
-        }else{
-            return response.json().then(data => {
-            errorMessage.innerText = data.message || 'Unexpected error occurred. Please try again later.';
-            errorAlert.classList.remove('d-none');
-            })
-        }
+
     }).catch(error => {
         errorMessage.innerText = 'Server is not responding. Please try again later.';
         errorAlert.classList.remove('d-none');
     })
+
+}
+fetchStudents();
+
 
 
     fetch('http://localhost:5087/admin/api/get/department/', {
@@ -69,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.status===200) {
+        if (response.ok) {
             return response.json().then(data => {
             const selectElement = document.getElementById('departmentSelect');
             data.$values.forEach(item => {
@@ -133,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                     document.querySelector('.addStudent-form').reset();
                     successMessage.innerText = data.message;

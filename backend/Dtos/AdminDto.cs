@@ -159,7 +159,7 @@ namespace backend.Dtos
     public class studentTransactionDto
     {
         public int Id { get; set; }
-        public decimal Amount { get; set; }
+        public Decimal Amount { get; set; }
         public string? Method { get; set; }
         public string? Description { get; set; }
         public string? TransID { get; set; }
@@ -167,7 +167,9 @@ namespace backend.Dtos
         public bool IsCompleted { get; set; }
         public string? LevyName { get; set; }
         public string? StudentFName { get; set; }
+        public string? StudentID { get; set; }
         public string? StudentLName { get; set; }
+        public string? StudentMatricNo { get; set; }
     }
 
 

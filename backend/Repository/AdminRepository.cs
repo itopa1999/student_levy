@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.models;
@@ -95,7 +96,33 @@ namespace backend.Repository
 
         }
 
-        public async Task<ListDepartmentDto?> GetDepartmentAsync(int id)
+        public async Task<List<DefaultLeviesDto>?> DefaultingStudentAsync(DefaultStudentQuery query)
+        {
+            var defaultstudent = _context.Levies
+            .Where(x=>x.ToBalance != 0)
+            .Include(l=> l.AppUser)
+            .Include(l=> l.Semester)
+            .AsQueryable();
+        
+            if (!string.IsNullOrWhiteSpace(query.FilterOptions)){
+                defaultstudent = defaultstudent.Where(x=>x.AppUser.FirstName.Contains(query.FilterOptions)
+                || x.AppUser.LastName.Contains(query.FilterOptions)
+                || x.AppUser.MatricNo.Contains(query.FilterOptions)
+                || x.Semester.Name.Contains(query.FilterOptions)
+                || x.Name.Contains(query.FilterOptions)
+                );
+            }
+            var SkipNumber = (query.PageNumber - 1) * query.PageSize;
+    
+            return await defaultstudent
+                .Select(x => x.ToDefaultLeviesDto())
+                .Skip(SkipNumber)
+                .Take(query.PageSize)
+                .ToListAsync();
+
+        }
+
+        public async Task<ListDepartmentDto?> GetDepartmentAsync(int id, DepartmentQuery query)
         {
             var department = await _context.Departments
                 .Include(d => d.Semesters)
@@ -106,7 +133,13 @@ namespace backend.Repository
             {
                 return null;
             }
-
+            if (!string.IsNullOrEmpty(query.FilterOptions))
+            {
+                department.AppUsers = department.AppUsers
+                    .Where(l => l.FirstName.Contains(query.FilterOptions)
+                    || l.LastName.ToString().Contains(query.FilterOptions)
+                    || l.MatricNo.ToString().Contains(query.FilterOptions)).ToList();
+            }
             var departmentDto = department.ToDepartmentDto();
 
             return departmentDto;
@@ -143,7 +176,7 @@ namespace backend.Repository
             return semesterDto;
         }
 
-        public async Task<StudentDetailsDto?> GetStudentDetailsAsync(string id)
+        public async Task<StudentDetailsDto?> GetStudentDetailsAsync(string id, LevyQuery query)
         {
             var student = await _userManager.Users
             .Include(x => x.Department)
@@ -156,26 +189,71 @@ namespace backend.Repository
             {
                 return null;
             }
+            if (!string.IsNullOrEmpty(query.FilterOptions))
+            {
+                student.Levies = student.Levies
+                    .Where(l => l.Name.Contains(query.FilterOptions)
+                    || l.ToBalance.ToString().Contains(query.FilterOptions)
+                    || l.Amount.ToString().Contains(query.FilterOptions)).ToList();
+                    
+            }
+            if (!string.IsNullOrEmpty(query.TransactionFilterOptions))
+            {
+                student.Transactions = student.Transactions
+                    .Where(l => l.Id.ToString().Contains(query.TransactionFilterOptions)
+                    || l.Amount.ToString().Contains(query.TransactionFilterOptions)
+                    || l.Description.Contains(query.TransactionFilterOptions)
+                    || l.Levy.Name.Contains(query.TransactionFilterOptions)
+                    || l.TransID.Contains(query.TransactionFilterOptions)).ToList();
+                    
+            }
+            if (!string.IsNullOrWhiteSpace(query.OrderOptions)){
+                if (query.OrderOptions == "Amount"){
+                    student.Transactions = student.Transactions.OrderByDescending(x=>x.Amount).ToList();
+                }
+                if (query.OrderOptions == "TranID"){
+                    student.Transactions = student.Transactions.OrderByDescending(x=>x.Id).ToList();
+                }
+                if (query.OrderOptions == "Date"){
+                    student.Transactions = student.Transactions.OrderByDescending(x=>x.CreatedAt).ToList();
+                }
+                
+            }
             
             var studentDto= student.ToStudentDetailsDto();
 
             return studentDto;
         }
 
-        public async Task<List<Department>> ListDepartmentAsync()
+        public async Task<List<Department>> ListDepartmentAsync(DepartmentQuery query)
         {
-            return await _context.Departments.ToListAsync();
+            var departments =   _context.Departments.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(query.FilterOptions)){
+                departments = departments.Where(x=>x.Name.Contains(query.FilterOptions)
+                || x.ProgramType.Contains(query.FilterOptions)
+                || x.AcademicYear.Contains(query.FilterOptions)
+                );
+            }
+            return await departments.ToListAsync();
         }
 
-        public async Task<List<StudentDto>> ListStudentAsync()
+        public async Task<List<StudentDto>> ListStudentAsync(StudentQuery query)
         {
-            var students =  await _userManager.Users
+            var students = _userManager.Users
             .Where(x=>x.IsStudent == true)
             .Include(l=> l.Department)
-            .Select(x => x.ToStudentDto())
-            .ToListAsync();
-
-            return students;
+            .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(query.FilterOptions)){
+                students = students.Where(x=>x.FirstName.Contains(query.FilterOptions)
+                || x.LastName.Contains(query.FilterOptions)
+                || x.MatricNo.Contains(query.FilterOptions)
+                );
+            }
+            var studentDtos = await students
+                .Select(x => x.ToStudentDto())
+                .ToListAsync();
+            var SkipNumber = (query.PageNumber - 1) * query.PageSize;
+            return studentDtos.Skip(SkipNumber).Take(query.PageSize).ToList();
         }
 
         public async Task<AppUser> StudentDepartmentCreateAsync(AppUser appUser, int DepartmentId)
@@ -248,5 +326,57 @@ namespace backend.Repository
                 return null;
             }
         }
+
+
+        public async Task<List<studentTransactionDto>?> GetAdminAllTransactions(TransactionQuery query)
+        {
+            var transactions = _context.Transactions
+            .Include(l=>l.AppUser)
+            .Include(c=>c.Levy)
+            .OrderByDescending(t => t.CreatedAt)
+            .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(query.FilterOptions)){
+                transactions = transactions.Where(x=>x.TransID.Contains(query.FilterOptions)
+                || x.Description.Contains(query.FilterOptions)
+                || x.Levy.Name.Contains(query.FilterOptions)
+                || x.Amount.ToString().Contains(query.FilterOptions)
+                || x.Id.ToString().Contains(query.FilterOptions)
+                || x.AppUser.FirstName.Contains(query.FilterOptions)
+                || x.AppUser.LastName.Contains(query.FilterOptions)
+                || x.AppUser.MatricNo.Contains(query.FilterOptions)
+                );
+            }
+            if (!string.IsNullOrWhiteSpace(query.OrderOptions)){
+                if (query.OrderOptions == "Amount"){
+                    transactions = transactions.OrderByDescending(x=>x.Amount);
+                }
+                if (query.OrderOptions == "TranID"){
+                    transactions = transactions.OrderByDescending(x=>x.Id);
+                }
+                if (query.OrderOptions == "Date"){
+                    transactions = transactions.OrderByDescending(x=>x.CreatedAt);
+                }
+                
+            }
+            var transactionDto = transactions.Select(t => new studentTransactionDto
+            {
+                Id = t.Id,
+                Amount = t.Amount,
+                TransID = t.TransID,
+                Method = t.Method,
+                Description = t.Description,
+                LevyName = t.Levy.Name,
+                CreatedAt = t.CreatedAt,
+                StudentFName=t.AppUser.FirstName,
+                StudentLName = t.AppUser.LastName,
+                StudentMatricNo = t.AppUser.MatricNo
+            });
+            var SkipNumber = (query.PageNumber - 1) * query.PageSize;
+            return await transactionDto.Skip(SkipNumber).Take(query.PageSize).ToListAsync();
+        
+        }
+
+
+
     }
 }

@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.status===200) {
+        if (response.ok) {
             return response.json().then(data => {
                 document.getElementById('DepartmentName').innerHTML = data.name;
                 document.getElementById('academicYearDep').innerHTML = data.academicYear;
@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </a>
                                         </div>
                                     </div>
-                                    <a href="#!" class="btn btn-secondary btn-sm" style="font-size:0.78em">Amt: ${levy.amount}</a>
-                                    <a href="#!" class="btn btn-success btn-sm" style="font-size:0.78em">TB: ${levy.toBalance}</a>
+                                    <a href="#!" class="btn btn-secondary btn-sm" style="font-size:0.78em">Amt: ₦${levy.amount.toFixed(2)}</a>
+                                    <a href="#!" class="btn btn-success btn-sm" style="font-size:0.78em">TB: ₦${levy.toBalance.toFixed(2)}</a>
                                 </li><hr>
                             `).join('') : '<p>No levies available for this semester.</p>'}
                               </div>

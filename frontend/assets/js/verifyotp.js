@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             loginText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                 localStorage.removeItem('passwordUsername');
                 localStorage.removeItem('passwordMessage');

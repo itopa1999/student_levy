@@ -70,7 +70,13 @@
           <span>Student</span>
         </a>
       </li>
-      <li class="nav-item"></li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="adminTransaction.html">
+          <i class="bi bi-question-circle"></i>
+          <span>Transactions</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
           <span>Default Student</span>
@@ -112,7 +118,8 @@
               <div class="ps-3">
                 <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="departmentAcademyYear"></span> <br>
                     <span id="departmentProgramType"></span></p>
-                <p></p>
+                    <p><strong class="text-secondary">Total Semesters: <span id="t_semester">2</span></strong></p>
+                <p><strong class="text-secondary">Total Students: <span id="t_students">2</span></strong></p>
               </div>
             </div>
           </div>
@@ -143,6 +150,9 @@
             </p>
             </div>
             <div class="tab-pane fade" id="bordered-justified-profile" role="tabpanel" aria-labelledby="profile-tab">
+              <div class="m-3">
+                <input type="text" name="FilterOptions" class="w-10 form-control" id="searchInput" placeholder="Filter by FirstName, LastName, MatricNo">
+              </div>
                 <ol class="list-group list-group-numbered mt-3" id="student-container">
                     
                   </ol>

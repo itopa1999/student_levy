@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using backend.Data;
 using backend.Dtos;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.models;
@@ -68,10 +70,10 @@ namespace backend.Controllers
         }
 
         [HttpGet("list/department/")]
-        [Authorize]
-        [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> ListDepartment(){
-            var departments = await _adminRepo.ListDepartmentAsync();
+        // [Authorize]
+        // [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> ListDepartment([FromQuery] DepartmentQuery query){
+            var departments = await _adminRepo.ListDepartmentAsync(query);
             return Ok(departments);
              
         }
@@ -79,8 +81,8 @@ namespace backend.Controllers
         [HttpGet("get/department/details/{id:int}/")]
         [Authorize]
         [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> GetDepartmentDetails([FromRoute] int id){
-            var departments = await _adminRepo.GetDepartmentAsync(id);
+        public async Task<IActionResult> GetDepartmentDetails([FromRoute] int id, [FromQuery] DepartmentQuery query){
+            var departments = await _adminRepo.GetDepartmentAsync(id, query);
             if (departments == null){
                 return BadRequest(new{message = "Department not found"});
             }
@@ -257,8 +259,8 @@ namespace backend.Controllers
         [HttpGet("get/students/details/{id}/")]
         [Authorize]
         [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> GetStudentDetails(string id){
-            var student = await _adminRepo.GetStudentDetailsAsync(id);
+        public async Task<IActionResult> GetStudentDetails(string id, [FromQuery] LevyQuery query){
+            var student = await _adminRepo.GetStudentDetailsAsync(id, query);
             if (student == null){
                 return BadRequest(new{message = "student not found"});
             
@@ -269,8 +271,8 @@ namespace backend.Controllers
         [HttpGet("list/students/")]
         [Authorize]
         [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> ListStudents(){
-            var students = await _adminRepo.ListStudentAsync();
+        public async Task<IActionResult> ListStudents([FromQuery] StudentQuery query){
+            var students = await _adminRepo.ListStudentAsync(query);
             if (students == null){
                 return NoContent();
             }
@@ -451,15 +453,10 @@ namespace backend.Controllers
 
 
         [HttpGet("defaulting/students")]
-        [Authorize]
-        [Authorize(Policy = "IsAdmin")]
-        public async Task<IActionResult> DefaultStudent(){
-            var defaultstudent = await _context.Levies
-            .Where(x=>x.ToBalance != 0)
-            .Include(l=> l.AppUser)
-            .Include(l=> l.Semester)
-            .Select(x=>x.ToDefaultLeviesDto())
-            .ToListAsync();
+        // [Authorize]
+        // [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> DefaultStudent([FromQuery] DefaultStudentQuery query) {
+            var defaultstudent = await _adminRepo.DefaultingStudentAsync(query);
 
             var totalDefault = await _context.Levies
             .Where(x => x.ToBalance != 0)
@@ -514,6 +511,29 @@ namespace backend.Controllers
                 return Ok(new {message=$"{createLevyDto.Name} successfully added for {student.FirstName}"});
 
             }return BadRequest(new{message=$"levy already exists for this Name: {createLevyDto.Name}"});
+        }
+
+        [HttpGet("list/transactions/students")]
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> ListTransactions([FromQuery] TransactionQuery query){
+            var transactions = await _adminRepo.GetAdminAllTransactions(query);
+            var totalToBal = await _context.Levies
+            .Where(x => x.ToBalance != 0)
+            .SumAsync(x => x.ToBalance);
+
+            var totalBilling = await _context.Levies
+            .SumAsync(x => x.Amount);
+
+            var totalPay = await _context.Transactions
+            .SumAsync(x => x.Amount);
+
+            return Ok(new{
+                totalToBal=totalToBal,
+                totalBilling=totalBilling,
+                totalPay=totalPay,
+                transactions = transactions
+            });
         }
 
     }

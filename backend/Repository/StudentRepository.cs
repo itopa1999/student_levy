@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.models;
@@ -23,6 +24,50 @@ namespace backend.Repository
         {
             _context = context;
             _userManager = userManager;
+        }
+
+        public async Task<List<studentTransactionDto>?> GetAllTransactions(AppUser appUser, StudentTransactionQueryObjects transQuery)
+        {
+            var transactions = _context.Transactions
+            .Where(x=>x.AppUserId==appUser.Id)
+            .Include(l=>l.AppUser)
+            .Include(c=>c.Levy)
+            .OrderByDescending(t => t.CreatedAt)
+            .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(transQuery.FilterOptions)){
+                transactions = transactions.Where(x=>x.TransID.Contains(transQuery.FilterOptions)
+                || x.Description.Contains(transQuery.FilterOptions)
+                || x.Levy.Name.Contains(transQuery.FilterOptions)
+                || x.Amount.ToString().Contains(transQuery.FilterOptions)
+                || x.Id.ToString().Contains(transQuery.FilterOptions)
+                );
+            }
+            if (!string.IsNullOrWhiteSpace(transQuery.OrderOptions)){
+                if (transQuery.OrderOptions == "Amount"){
+                    transactions = transactions.OrderByDescending(x=>x.Amount);
+                }
+                if (transQuery.OrderOptions == "TranID"){
+                    transactions = transactions.OrderByDescending(x=>x.Id);
+                }
+                if (transQuery.OrderOptions == "Date"){
+                    transactions = transactions.OrderByDescending(x=>x.CreatedAt);
+                }
+                
+            }
+            var transactionDto = transactions.Select(t => new studentTransactionDto
+            {
+                Id = t.Id,
+                Amount = t.Amount,
+                TransID = t.TransID,
+                Method = t.Method,
+                Description = t.Description,
+                LevyName = t.Levy.Name,
+                CreatedAt = t.CreatedAt,
+                StudentID=appUser.Id
+            });
+            var SkipNumber = (transQuery.PageNumber - 1) * transQuery.PageSize;
+            return await transactionDto.Skip(SkipNumber).Take(transQuery.PageSize).ToListAsync();
+        
         }
 
         public async Task<StudentGetDepartmentDto?> GetClearanceAsync(int id, string appUserId)

@@ -17,6 +17,28 @@
   <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
+  <style>
+    a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: #f1f1f1;
+  color: black;
+}
+  </style>
 </head>
 <body>
   <header id="header" class="header fixed-top d-flex align-items-center">
@@ -70,7 +92,13 @@
           <span>Student</span>
         </a>
       </li>
-      <li class="nav-item"></li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="adminTransaction.html">
+          <i class="bi bi-question-circle"></i>
+          <span>Transactions</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link collapsed" href="defaultstudent.html">
           <i class="bi bi-question-circle"></i>
           <span>Default Student</span>
@@ -106,11 +134,15 @@
         <button class="btn btn text-white rounded-0 md-4" data-bs-toggle="modal" data-bs-target="#addDepartmentModal" style="background-color: rgb(19, 73, 143);">
             Bulk Add Students</button>
     </div>
+    
     <div class="row mt-4" id="card-container">
     <div class="card">
         <div class="card-body">
+          
             <h5 class="card-title">Students List</h5>
-
+            <div>
+              <input type="text" name="searchInput" class="w-10 form-control m-3" id="searchInput" placeholder="Filter by FirstName, LastName, MatricNo">
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped">
             <thead>
@@ -129,6 +161,8 @@
             </tbody>
             </table>
             </div>
+            <a href="#" class="previous" id="prevPage">&laquo; Previous</a>
+            <a href="#" class="next" id="nextPage">Next &raquo;</a>
 
         </div>
         </div>

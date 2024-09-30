@@ -20,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
           'Authorization': 'Bearer ' + token
       }
     }).then(response => {
-        if (response.status===200) {
+        if (response.ok) {
           return response.json().then(data => {
-            document.getElementById('stuBalance').innerHTML = data.stu_balance;
+            document.getElementById('stuBalance').innerHTML ="₦"+ data.stu_balance.toFixed(2);
             const tableBody = document.querySelector('.table-container'); // Target table body
             tableBody.innerHTML = ''; // Clear any existing rows
             console.log(data)
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr>
                     <th scope="row">${transaction.id}</th>
                     <td>${transaction.levyName}</td>
-                    <td>${transaction.amount}</td>
+                    <td>₦${transaction.amount.toFixed(2)}</td>
                     <td>${transaction.description}</td>
                     <td>${transaction.method}</td>
                     <td>${new Date(transaction.createdAt).toLocaleString()}</td>

@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.status===200) {
+        if (response.ok) {
             return response.json().then(data => {
                 document.getElementById('semesterName').innerHTML = data.name;
                 document.getElementById('semesterDepartment').innerHTML = data.departmentName;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                     document.querySelector('.addLevy-form').reset();
                     successMessage.innerText = data.message;

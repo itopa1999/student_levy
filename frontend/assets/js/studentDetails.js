@@ -12,17 +12,41 @@ document.addEventListener('DOMContentLoaded', function() {
     errorMessage.innerHTML = '';
     successAlert.classList.add('d-none');
     successMessage.innerHTML = '';
-    fetch(`http://localhost:5087/admin/api/get/students/details/${Id}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token
-        }
-    }).then(response => {
-        if (response.status===200) {
-            return response.json().then(data => {
+    document.getElementById('searchInput').addEventListener('input', function() {
+        fetchStudentDetails();
+      });
+      document.getElementById('searchInput1').addEventListener('input', function() {
+        fetchStudentDetails();
+      });
+      document.getElementById('orderingSelect').addEventListener('change', function() {
+        fetchStudentDetails();
+      });
+      function fetchStudentDetails() {
+  
+        const searchInput = document.getElementById('searchInput').value;
+        const searchInput1 = document.getElementById('searchInput1').value;
+        const orderSelect = document.getElementById('orderingSelect').value;
+
+        const url = `http://localhost:5087/admin/api/get/students/details/${Id}?FilterOptions=${searchInput}&TransactionFilterOptions=${searchInput1}&OrderOptions=${orderSelect}`;
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+              return response.json().then(data => {
+                  errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+                  errorAlert.classList.remove('d-none');
+                })
+            }
+          }).then(data => {
                 document.getElementById("stuName").innerHTML = data.firstName + " " +  data.lastName;
                 document.getElementById("stuFullName").innerHTML = data.firstName + " " +  data.lastName;
-                document.getElementById("stuBalance").innerHTML = data.balance;
+                document.getElementById("stuBalance").innerHTML = "₦"+data.balance.toFixed(2);
                 document.getElementById("stuFirstName").innerHTML = data.firstName;
                 document.getElementById("stuLastName").innerHTML = data.lastName;
                 document.getElementById("stuMatric").innerHTML = data.matricNo;
@@ -43,8 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .then(response => {
-                    if (response.status===200) {
+                    if (response.ok) {
                         return response.json().then(data => {
+                            console.log(data)
                         const selectElement = document.getElementById('semesterID');
                         data.$values.forEach(item => {
                         const option = document.createElement('option');
@@ -87,8 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                        pay
                                     </a></div>
                                 </div>
-                                <a href="#!" class="btn btn-secondary btn-sm" style="font-size:o.78em">Amt: ${item.amount}</a>
-                                <a href="#!" class="btn btn-success btn-sm" >TB ${item.toBalance}</a>
+                                <a href="#!" class="btn btn-secondary btn-sm" style="font-size:o.78em">Amt: ₦${item.amount.toFixed(2)}</a>
+                                <a href="#!" class="btn btn-success btn-sm" >TB: ₦${item.toBalance.toFixed(2)}</a>
                                 </li>
                               </div>
                             </div>
@@ -135,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tr>
                         <th scope="row">${index + 1}</th>
                         <td>${transaction.levyName}</td>
-                        <td>${transaction.amount}</td>
+                        <td>₦${transaction.amount.toFixed(2)}</td>
                         <td>${transaction.description}</td>
                         <td>${transaction.method}</td>
                         <td>${new Date(transaction.createdAt).toLocaleString()}</td>
@@ -145,19 +170,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     tableBody.innerHTML += rowHtml;
                 })
             }
-
-
-            });
-        }else {
-            return response.json().then(data => {
-            errorMessage.innerText = data.message || 'Unexpected error occurred. Please try again later.';
-            errorAlert.classList.remove('d-none');
-            })
-        }
+       
     }).catch(error => {
         errorMessage.innerText = 'Server is not responding. Please try again later.';
         errorAlert.classList.remove('d-none');
     })
+}
+fetchStudentDetails();
+
 
 
     document.querySelector('.payStudent-form').addEventListener('submit', function(event) {
@@ -198,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "Payment successfully";
                     successAlert.classList.remove('d-none');
@@ -256,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "updated successfully";
                     successAlert.classList.remove('d-none');
@@ -309,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "changed successfully";
                     successAlert.classList.remove('d-none');
@@ -372,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 spinner.classList.add('d-none');
                 submitText.classList.remove('d-none');
                 
-                if (response.status===200) {
+                if (response.ok) {
                     return response.json().then(data => {
                         successMessage.innerText = data.message || "Created successfully";
                         successAlert.classList.remove('d-none');

@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             loginText.classList.remove('d-none');
             
-            if (response.status===200) {
+            if (response.ok) {
                 return response.json().then(data => {
                     console.log(data)
                     localStorage.setItem('levy_token', data.token);

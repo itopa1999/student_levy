@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.models;
 using backend.Services;
@@ -46,13 +47,9 @@ namespace backend.Controllers
             {
                 return Unauthorized();
             }
-            var claims = User.Claims.ToList(); // Get all claims associated with the user
-            foreach (var claim in claims)
-            {
-                Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
-            }
+
             var student = await _userManager.FindByIdAsync(userId);
-            var balance = student.Balance;
+            decimal balance = student.Balance;
             var transactions = await _context.Transactions
             .Where(x=>x.AppUserId == student.Id)
             .Include(l=>l.AppUser)
@@ -62,7 +59,7 @@ namespace backend.Controllers
             .Select(t => new studentTransactionDto
             {
                 Id = t.Id,
-                Amount = t.Amount,
+                Amount = (decimal)(double)t.Amount,
                 TransID = t.TransID,
                 Method = t.Method,
                 Description = t.Description,
@@ -79,30 +76,14 @@ namespace backend.Controllers
         [HttpGet("student/transaction")]
         [Authorize]
         [Authorize(Policy = "IsStudent")]
-        public async Task<IActionResult> StudentTransaction(){
+        public async Task<IActionResult> StudentTransaction([FromQuery] StudentTransactionQueryObjects query){
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized();
             }
             var student = await _userManager.FindByIdAsync(userId);
-            var transactions = await _context.Transactions
-            .Where(x=>x.AppUserId == student.Id)
-            .Include(l=>l.AppUser)
-            .Include(c=>c.Levy)
-            .OrderByDescending(t => t.CreatedAt)
-            .Select(t => new studentTransactionDto
-            {
-                Id = t.Id,
-                Amount = t.Amount,
-                TransID = t.TransID,
-                Method = t.Method,
-                Description = t.Description,
-                LevyName = t.Levy.Name,
-                CreatedAt = t.CreatedAt
-            })
-            .ToListAsync();
-
+            var transactions = await _studentRepo.GetAllTransactions(student, query);
             var totalToBal = await _context.Levies
             .Where(x => x.ToBalance != 0 && x.AppUserId == student.Id)
             .SumAsync(x => x.ToBalance);

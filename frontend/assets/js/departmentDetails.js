@@ -13,18 +13,37 @@ document.addEventListener('DOMContentLoaded', function() {
     successAlert.classList.add('d-none');
     successMessage.innerHTML = '';
 
-    fetch(`http://localhost:5087/admin/api/get/department/details/${Id}`, {
+    document.getElementById('searchInput').addEventListener('input', function() {
+      currentPage = 1;
+      fetchDepartmentDetails();
+    });
+    function fetchDepartmentDetails() {
+
+      const searchInput = document.getElementById('searchInput').value;
+      const url = `http://localhost:5087/admin/api/get/department/details/${Id}?FilterOptions=${searchInput}`;
+
+    fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + token
         }
     })
     .then(response => {
-        if (response.status===200) {
-            return response.json().then(data => {
+      if (response.ok) {
+          return response.json();
+      } else {
+        return response.json().then(data => {
+            errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+            errorAlert.classList.remove('d-none');
+          })
+      }
+    })
+    .then(data => {
                 document.getElementById('departmentName').innerHTML = data.name;
                 document.getElementById('departmentAcademyYear').innerHTML = data.academicYear;
                 document.getElementById('departmentProgramType').innerHTML = data.programType;
+                document.getElementById('t_students').innerHTML = data.students.$values.length;
+                document.getElementById('t_semester').innerHTML = data.semesters.$values.length;
                 
                 const container = document.getElementById('semester-container');
                 const stu_container = document.getElementById('student-container');
@@ -72,21 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         stu_container.innerHTML += cardHtml;
                     });
                 }
-                }
+              }
                 
-            })
-        }else {
-          return response.json().then(data => {
-          // Handle other error statuses
-          errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
-          errorAlert.classList.remove('d-none');
-          })
-        }
     }).catch(error => {
       errorMessage.innerText = 'Server is not responding. Please try again later.';
       errorAlert.classList.remove('d-none');
     })
 
-
+  }
+  fetchDepartmentDetails();
 
 })

@@ -12,16 +12,50 @@ document.addEventListener('DOMContentLoaded', function() {
     errorMessage.innerHTML = '';
     successAlert.classList.add('d-none');
     successMessage.innerHTML = '';
-    fetch('http://localhost:5087/admin/api/defaulting/students', {
+
+    let currentPage = 1;
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        currentPage = 1;
+        fetchDefaultStudents();
+      });
+
+      document.getElementById('prevPage').addEventListener('click', function(e) {
+          e.preventDefault();
+          if (currentPage > 1) {
+              currentPage--;
+              fetchDefaultStudents();
+          }
+      });
+
+      document.getElementById('nextPage').addEventListener('click', function(e) {
+          e.preventDefault();
+          currentPage++;
+          fetchDefaultStudents();
+      });
+
+      function fetchDefaultStudents() {
+
+    const searchInput = document.getElementById('searchInput').value;
+    const url = `http://localhost:5087/admin/api/defaulting/students?FilterOptions=${searchInput}&PageNumber=${currentPage}`
+    fetch(url, {
       method: 'GET',
       headers: {
           'Authorization': 'Bearer ' + token
       }
-    }).then(response => {
-        if (response.status===200) {
-          return response.json().then(data => {
-            console.log(data)
-            document.getElementById('defaultAmount').innerHTML = data.totalDefault;
+    })
+    .then(response => {
+      if (response.ok) {
+          return response.json();
+      } else {
+        return response.json().then(data => {
+            // Handle other error statuses
+            errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+            errorAlert.classList.remove('d-none');
+          })
+      }
+  }).then(data => {
+            document.getElementById('defaultAmount').innerHTML = "₦"+data.totalDefault.toFixed(2);
             const tableBody = document.querySelector('.table-container'); // Target table body
             tableBody.innerHTML = ''; // Clear any existing rows
 
@@ -39,25 +73,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${levy.studentFName} ${levy.studentLName}</td>
                     <td>${levy.name}</td>
                     <td>${levy.semesterName}</td>
-                    <td>${levy.amount}</td>
-                    <td>${levy.toBalance}</td>
+                    <td>₦${levy.amount.toFixed(2)}</td>
+                    <td>₦${levy.toBalance.toFixed(2)}</td>
                     <td>${new Date(levy.createdAt).toLocaleDateString()}</td>
                 </tr>
                 `;
                 tableBody.innerHTML += rowHtml;
             })
         }
-          })
-        }else {
-          return response.json().then(data => {
-          // Handle other error statuses
-          errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
-          errorAlert.classList.remove('d-none');
-          })
-        }
+
     }).catch(error => {
       errorMessage.innerText = 'Server is not responding. Please try again later.';
       errorAlert.classList.remove('d-none');
   })
 
+}
+fetchDefaultStudents();
 })

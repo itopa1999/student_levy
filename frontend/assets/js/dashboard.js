@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
           'Authorization': 'Bearer ' + token
       }
     }).then(response => {
-        if (response.status===200) {
+        if (response.ok) {
           return response.json().then(data => {
             console.log(data.transactions.$values)
-            t_department.innerHTML = data.t_department;
+            t_department.innerHTML =data.t_department;
             t_student.innerHTML = data.t_student;
             const tableBody = document.querySelector('.table-container'); // Target table body
             tableBody.innerHTML = ''; // Clear any existing rows
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <th scope="row">${transaction.id}</th>
                     <td>${transaction.studentFName} ${transaction.studentLName}</td>
                     <td>${transaction.levyName}</td>
-                    <td>${transaction.amount}</td>
+                    <td>₦${transaction.amount.toFixed(2)}</td>
                     <td>${transaction.description}</td>
                     <td>${transaction.method}</td>
                     <td>${new Date(transaction.createdAt).toLocaleString()}</td>
