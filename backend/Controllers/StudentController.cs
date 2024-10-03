@@ -24,18 +24,24 @@ namespace backend.Controllers
         public readonly UserManager<AppUser> _userManager;
         public readonly IStudentRepository _studentRepo;
         private readonly ReceiptPDFService _ReceiptPDF;
+        private readonly FlutterwaveService _flutterRepo;
+        public readonly IUserRepository _userRepo;
 
         public StudentController(
             IStudentRepository studentRepo,
             ApplicationDBContext context,
             UserManager<AppUser> userManager,
-            ReceiptPDFService ReceiptPDF
+            ReceiptPDFService ReceiptPDF,
+            FlutterwaveService flutterRepo,
+            IUserRepository userRepo
         )
         {
             _studentRepo = studentRepo;
             _context = context;
             _userManager = userManager;
             _ReceiptPDF = ReceiptPDF;
+            _flutterRepo = flutterRepo;
+            _userRepo = userRepo;
         }
 
         [HttpGet("student/dashboard")]
@@ -45,7 +51,7 @@ namespace backend.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
 
             var student = await _userManager.FindByIdAsync(userId);
@@ -67,7 +73,7 @@ namespace backend.Controllers
                 CreatedAt = t.CreatedAt
             })
             .ToListAsync();
-            return Ok(new{
+            return StatusCode(200, new{
                 stu_balance=balance,
                 transactions = transactions
             });
@@ -80,7 +86,7 @@ namespace backend.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
             var student = await _userManager.FindByIdAsync(userId);
             var transactions = await _studentRepo.GetAllTransactions(student, query);
@@ -96,7 +102,7 @@ namespace backend.Controllers
             .Where(x=>x.AppUserId == student.Id)
             .SumAsync(x => x.Amount);
 
-            return Ok(new{
+            return StatusCode(200, new{
                 totalToBal=totalToBal,
                 totalBilling=totalBilling,
                 totalPay=totalPay,
@@ -112,14 +118,14 @@ namespace backend.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
             var student = await _userManager.FindByIdAsync(userId);
             var departments = await _studentRepo.GetDepartmentAsync(student.DepartmentId.Value, student.Id);
             if (departments == null){
-                return BadRequest(new{message = "Department not found"});
+                return StatusCode(400, new{message = "Department not found"});
             }
-            return Ok(departments);
+            return StatusCode(200, departments);
 
         }
 
@@ -132,7 +138,7 @@ namespace backend.Controllers
             .Include(x=>x.AppUser)
             .FirstOrDefaultAsync(x=>x.Id==id);
             if (transaction == null){
-                return BadRequest(new{message="Receipt for this transaction not found"});
+                return StatusCode(400, new{message="Receipt for this transaction not found"});
             }
             var htmlContent = $@"
             <!DOCTYPE html>
@@ -235,14 +241,14 @@ namespace backend.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
             var student = await _userManager.FindByIdAsync(userId);
             var departments = await _studentRepo.GetClearanceAsync(student.DepartmentId.Value, student.Id);
             if (departments == null){
-                return BadRequest(new{message = "Department not found"});
+                return StatusCode(400, new{message = "Department not found"});
             }
-            return Ok(departments);
+            return StatusCode(200, departments);
 
         }
 
@@ -252,22 +258,22 @@ namespace backend.Controllers
         public async Task<IActionResult> PrintClearance([FromRoute] int id){
             var semester = await _context.Semesters.FindAsync(id);
             if (semester == null){
-                return BadRequest(new{message="Semester Not Found"});
+                return StatusCode(400, new{message="Semester Not Found"});
             }
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
             var student = await _userManager.FindByIdAsync(userId);
             var levy =  _context.Levies.Where(x=>x.SemesterId == id && x.AppUserId == student.Id);
             var totalAmount = await levy.SumAsync(x => x.Amount);
             if (totalAmount == 0){
-                return BadRequest(new{message="This Semester is on available for now."});
+                return StatusCode(400, new{message="This Semester is on available for now."});
             }
             var isDefault = await levy.SumAsync(x=>x.ToBalance);
             if (isDefault != 0){
-                return BadRequest(new{message="You have not completed semester levies"});
+                return StatusCode(400, new{message="You have not completed semester levies"});
             }
 
             var htmlContent = $@"
@@ -314,12 +320,92 @@ namespace backend.Controllers
         return File(pdfBytes, "application/pdf", $"Clearance_{semester.Id}_Receipt.pdf");
     }
             
+    
+
+        [HttpPost("payment/checkout/")]
+        [Authorize]
+        [Authorize(Policy = "IsStudent")]
+        public async Task<IActionResult> CheckoutPayment([FromBody] PayLevyDto payLevyDto){
+            if (!ModelState.IsValid){
+                return StatusCode(400, new{message=ModelState});
+            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return StatusCode(401,  new{message="Authorized Access"});
+            }
+            var student = await _userManager.FindByIdAsync(userId);
+            var result = await _flutterRepo.InitializePayment(payLevyDto.Amount, student);
+        
+            return StatusCode(200, result);
+        }
+
+        [HttpGet("confirm/deposit/{amount}")]
+        [Authorize]
+        [Authorize(Policy = "IsStudent")]
+        public IActionResult ConfirmDepositView(int amount, [FromQuery] string status, [FromQuery] string tx_ref, [FromQuery] string transaction_id)
+        {
+            // Handle the confirmation logic here
+            return StatusCode(200, new { message = "Deposit confirmed", amount, status, tx_ref, transaction_id });
+        }
 
 
-        // [HttpPost("payment/checkout/")]
-        // [Authorize]
-        // public async Task<IActionResult> CheckoutPayment()
+        [HttpGet("get/student/profile")]
+        [Authorize]
+        [Authorize(Policy = "IsStudent")]
+        public async Task<IActionResult> StudentProfile(){
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return StatusCode(401,  new{message="Authorized Access"});
+            }
+            var student = await _userManager.FindByIdAsync(userId);
+            if (student == null)
+            {
+                return StatusCode(401,  new{message="Authorized Access"});
+            }
+            var profile = await _studentRepo.GetStuDetailsAsync(userId);
+            if (profile == null)
+            {
+                return StatusCode(400, new{message="No record found"});
+            }
+            return StatusCode(200, profile);
 
+
+        }
+
+
+        [HttpPost("download/transactions")]
+        [Authorize]
+        [Authorize(Policy = "IsStudent")]
+        public async Task<IActionResult> DownloadStudentTransactions(){
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return StatusCode(401,  new{message="Authorized Access"});
+            }
+            var student = await _userManager.FindByIdAsync(userId);
+            var transactions = _context.Transactions
+            .Where(x=>x.AppUserId==student.Id)
+            .Include(l=>l.AppUser)
+            .Include(c=>c.Levy)
+            .OrderByDescending(t => t.CreatedAt);
+
+            var transactionDto = transactions.Select(t => new studentTransactionDto
+            {
+                Id = t.Id,
+                Amount = t.Amount,
+                TransID = t.TransID,
+                Method = t.Method,
+                Description = t.Description,
+                LevyName = t.Levy.Name,
+                CreatedAt = t.CreatedAt,
+                StudentID=student.Id
+            });
+
+            return Ok();
+
+        }
 
 
 

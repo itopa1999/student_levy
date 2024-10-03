@@ -42,7 +42,7 @@ document.querySelector('.resetPassword-form').addEventListener('submit', functio
         spinner.classList.add('d-none');
         loginText.classList.remove('d-none');
         
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
             localStorage.setItem('passwordUsername', data.username);
             localStorage.setItem('passwordMessage', data.message);

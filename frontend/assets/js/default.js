@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     })
     .then(response => {
-      if (response.ok) {
+      if (response.status===200) {
           return response.json();
       } else {
         return response.json().then(data => {
@@ -89,4 +89,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
 }
 fetchDefaultStudents();
+
+document.getElementById('downloadDefaultStudent').addEventListener('click', function() {
+  fetch(`http://localhost:5087/admin/api/download/default/students`, {
+    method: 'POST',
+    headers: {
+        'Authorization': 'Bearer ' + token
+    }
+  })
+  .then(response => {
+    if (response.status===200) {
+        return response.blob(); // Convert the response to a Blob
+    } else {
+      return response.json().then(data => {
+          // Handle other error statuses
+          errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+          errorAlert.classList.remove('d-none');
+        })
+    }
+})
+.then(blob => {
+    const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
+    const a = document.createElement('a'); // Create an anchor element
+    a.href = url; // Set the href to the Blob URL
+    a.download = `DefaultStudent.csv`; // Set the desired file name for download
+    document.body.appendChild(a); // Append the anchor to the body
+    a.click(); // Programmatically click the anchor to trigger the download
+    a.remove(); // Remove the anchor from the DOM
+    window.URL.revokeObjectURL(url); // Release the Blob URL
+})
+.catch(error => {
+  errorMessage.innerText = 'An error occurred. Please try again later.';
+  errorAlert.classList.remove('d-none');
+});
+})
+
 })

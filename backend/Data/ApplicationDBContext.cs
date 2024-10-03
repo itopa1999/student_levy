@@ -21,7 +21,7 @@ namespace backend.Data
         public DbSet<Department> Departments {get; set;}
         public DbSet<Semester> Semesters {get; set;}
         public DbSet<Levy> Levies {get; set;}
-        public DbSet<Clearance> Clearances {get; set;}
+        public DbSet<Audit> Audits {get; set;}
         public DbSet<Transaction> Transactions {get; set;}
 
         

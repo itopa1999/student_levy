@@ -27,6 +27,9 @@ namespace backend.Interfaces
         Task<Levy?> CreateStudentLevyAsync(Levy levy, string id);
         Task<List<DefaultLeviesDto>> DefaultingStudentAsync(DefaultStudentQuery query);
         Task<List<studentTransactionDto>?> GetAdminAllTransactions(TransactionQuery query);
+        Task<AdminProfileDto?> GetAdminDetailsAsync(string id);
+        Task<List<AuditDo>> ListAuditAsync(AuditQuery query);
+       
 
         
     }

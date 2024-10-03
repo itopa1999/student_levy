@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
           'Authorization': 'Bearer ' + token
       }
     }).then(response => {
-        if (response.ok) {
+        if (response.status===200) {
           return response.json().then(data => {
             document.getElementById('stuBalance').innerHTML ="₦"+ data.stu_balance.toFixed(2);
             const tableBody = document.querySelector('.table-container'); // Target table body

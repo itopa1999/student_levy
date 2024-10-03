@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 document.getElementById('DepartmentName').innerHTML = data.departmentName;
                 document.getElementById('academicYearDep').innerHTML = data.academicYear;

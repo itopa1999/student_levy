@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240930120206_retrying")]
+    partial class retrying
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d2deb5c4-1a6f-4c0d-a8ec-28360e258def",
+                            Id = "4c80ebf8-5337-4d09-a413-b3ce349ae038",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "e1ddb9e6-8d52-41ac-b029-7dc1ed558647",
+                            Id = "c8678431-ece6-4b44-bc9f-243f3da93639",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         });
@@ -263,7 +266,7 @@ namespace backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("backend.models.Audit", b =>
+            modelBuilder.Entity("backend.models.Clearance", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -271,18 +274,28 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Action")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("User")
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PdfFilePath")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SemesterId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Audits");
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("SemesterId");
+
+                    b.ToTable("Clearances");
                 });
 
             modelBuilder.Entity("backend.models.Department", b =>
@@ -421,9 +434,6 @@ namespace backend.Migrations
                     b.Property<string>("Method")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Payer")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("TransID")
                         .HasColumnType("nvarchar(max)");
 
@@ -495,6 +505,23 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("backend.models.Clearance", b =>
+                {
+                    b.HasOne("backend.models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("backend.models.Semester", "Semester")
+                        .WithMany("Clearances")
+                        .HasForeignKey("SemesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Semester");
                 });
 
             modelBuilder.Entity("backend.models.Levy", b =>
@@ -575,6 +602,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.models.Semester", b =>
                 {
+                    b.Navigation("Clearances");
+
                     b.Navigation("Levies");
                 });
 #pragma warning restore 612, 618

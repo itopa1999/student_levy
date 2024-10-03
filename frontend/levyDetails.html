@@ -35,8 +35,36 @@
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="assets/profile_pic.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block ps-2" id="firstName"></span>
+            <span class="d-none d-md-block dropdown-toggle ps-2" id="firstName"></span>
           </a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+            <li class="dropdown-header">
+              <h6 id="fullname"></h6>
+              <span id="username"></span>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="admin-profile.html">
+                <i class="bi bi-person"></i>
+                <span>My Profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li></li>
+              <a class="dropdown-item d-flex align-items-center" href="#" id="logoutBtn1">
+                <i class="bi bi-box-arrow-in-left"></i>
+                <span>Logout</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+          </ul>
           </ul>
         </li>
 
@@ -60,26 +88,32 @@
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="department.html">
-          <i class="bi bi-question-circle"></i>
+          <i class="bi bi-building"></i>
           <span>Department</span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="student.html">
-          <i class="bi bi-question-circle"></i>
+          <i class="bi bi-people"></i>
           <span>Student</span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="adminTransaction.html">
-          <i class="bi bi-question-circle"></i>
+          <i class="bi bi-credit-card"></i>
           <span>Transactions</span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="defaultstudent.html">
-          <i class="bi bi-question-circle"></i>
+          <i class="bi bi-person-badge"></i>
           <span>Default Student</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="audit.html">
+          <i class="bi bi-file-earmark-text"></i>
+          <span>Audit</span>
         </a>
       </li>
    

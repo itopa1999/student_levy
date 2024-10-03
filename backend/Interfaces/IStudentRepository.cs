@@ -13,5 +13,9 @@ namespace backend.Interfaces
         Task<StuGetDepartmentDto?> GetDepartmentAsync(int id,  string appUserId);
         Task<StudentGetDepartmentDto?> GetClearanceAsync(int id,  string appUserId);
         Task<List<studentTransactionDto>?> GetAllTransactions(AppUser appUser, StudentTransactionQueryObjects transQuery);
+        Task<StuDetailsDto?> GetStuDetailsAsync(string id);
     }
+
+
+    
 }

@@ -145,5 +145,20 @@ namespace backend.Repository
 
             return department.ToStuDepartmentDto();
         }
+
+        public async Task<StuDetailsDto?> GetStuDetailsAsync(string id)
+        {
+            var student = await _userManager.Users
+            .Include(x => x.Department)
+            .FirstOrDefaultAsync(x => x.Id == id);
+            if (student == null)
+            {
+                return null;
+            }
+            var studentDto= student.ToStuDetailsDto();
+
+            return studentDto;
+            
+        }
     }
 }

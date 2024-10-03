@@ -34,7 +34,6 @@ namespace backend.models
         public int DepartmentId { get; set; }
         public Department? Department { get; set; }
         public ICollection<Levy> Levies { get; set; } = new List<Levy>();
-        public ICollection<Clearance> Clearances { get; set; } = new List<Clearance>();
     }
 
     public class Levy
@@ -55,17 +54,12 @@ namespace backend.models
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 
-    public class Clearance
+    public class Audit
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public bool IsValid { get; set; }
-        public string? PdfFilePath { get; set; }
-        public string? AppUserId { get; set; }
-        public AppUser? AppUser { get; set; }
-
-        public int SemesterId { get; set; }
-        public Semester? Semester { get; set; }
+        public string? User { get; set; }
+        public string? Action { get; set; }
     }
 
     public class Transaction
@@ -75,6 +69,7 @@ namespace backend.models
         public string? TransID { get; set; } = GenerateUUID();
         public string? Method { get; set; }
         public string? Description { get; set; }
+        public string? Payer { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -89,6 +84,9 @@ namespace backend.models
             return Guid.NewGuid().ToString();
         }
     }
+
+
+
 
 
     

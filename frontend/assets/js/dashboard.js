@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
           'Authorization': 'Bearer ' + token
       }
     }).then(response => {
-        if (response.ok) {
+        if (response.status===200) {
           return response.json().then(data => {
             console.log(data.transactions.$values)
             t_department.innerHTML =data.t_department;
@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${transaction.levyName}</td>
                     <td>₦${transaction.amount.toFixed(2)}</td>
                     <td>${transaction.description}</td>
+                    <td>${transaction.payer}</td>
                     <td>${transaction.method}</td>
                     <td>${new Date(transaction.createdAt).toLocaleString()}</td>
                     <td>${transaction.transID}</td>

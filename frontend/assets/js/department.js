@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json();
         } else {
           return response.json().then(data => {
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(data => {
+        console.log(data)
                 const container = document.getElementById('card-container');
                 container.innerHTML =""
                 if (data.$values.length === 0) {
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     programTypeInput.value = programType;
                 });
             }).catch(error => {
-        errorMessage.innerText = 'Server is not responding. Please try again later.';
+        errorMessage.innerText = error;
         errorAlert.classList.remove('d-none');
 
     })
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "updated successfully";
                     successAlert.classList.remove('d-none');
@@ -208,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===201) {
                 return response.json().then(data => {
                     document.querySelector('.addDepartment-form').reset();
                     successMessage.innerText = data.message;

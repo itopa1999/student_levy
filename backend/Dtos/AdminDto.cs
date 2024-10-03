@@ -163,6 +163,7 @@ namespace backend.Dtos
         public string? Method { get; set; }
         public string? Description { get; set; }
         public string? TransID { get; set; }
+        public string? Payer { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsCompleted { get; set; }
         public string? LevyName { get; set; }
@@ -182,6 +183,7 @@ namespace backend.Dtos
         public string? SemesterName { get; set; }
         public string? StudentFName { get; set; }
         public string? StudentLName { get; set; }
+        public string? StudentMatric { get; set; }
         public DateOnly CreatedAt { get; set; }
     }
 
@@ -199,6 +201,39 @@ namespace backend.Dtos
         public string? Name { get; set; }
         public List<GetAddLevySemesterDto>? Semesters {get; set;} = new List<GetAddLevySemesterDto>();
 
+    }
+
+    public class AdminProfileDto
+    {
+        public string? Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Username { get; set; }
+        public DateOnly CreatedAt { get; set; }
+
+    }
+
+    public class AuditDo
+    {
+        public int Id { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? User { get; set; }
+        public string? Action { get; set; }
+    }
+
+
+    public class DownloadStudentDto
+    {
+        public string? Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Username { get; set; }
+        public string? MatricNo { get; set; }
+        public DateOnly CreatedAt { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? AcademicYear { get; set; }
+        public string? ProgramType { get; set; }
+        public bool IsStudent { get; set; }
     }
     
 

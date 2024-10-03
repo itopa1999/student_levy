@@ -69,4 +69,7 @@ namespace backend.Dtos
         public string? Password2 { get; set; }
     }
 
+
+    
+
 }

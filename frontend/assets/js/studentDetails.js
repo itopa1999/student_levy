@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json();
             } else {
               return response.json().then(data => {
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .then(response => {
-                    if (response.ok) {
+                    if (response.status===200) {
                         return response.json().then(data => {
                             console.log(data)
                         const selectElement = document.getElementById('semesterID');
@@ -158,10 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.transactions.$values.forEach((transaction, index) => {
                     const rowHtml = `
                     <tr>
-                        <th scope="row">${index + 1}</th>
+                        <th scope="row">${transaction.id}</th>
                         <td>${transaction.levyName}</td>
                         <td>₦${transaction.amount.toFixed(2)}</td>
                         <td>${transaction.description}</td>
+                        <td>${transaction.payer}</td>
                         <td>${transaction.method}</td>
                         <td>${new Date(transaction.createdAt).toLocaleString()}</td>
                         <td>${transaction.transID}</td>
@@ -218,7 +219,7 @@ fetchStudentDetails();
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "Payment successfully";
                     successAlert.classList.remove('d-none');
@@ -276,7 +277,7 @@ fetchStudentDetails();
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "updated successfully";
                     successAlert.classList.remove('d-none');
@@ -329,7 +330,7 @@ fetchStudentDetails();
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     successMessage.innerText = data.message || "changed successfully";
                     successAlert.classList.remove('d-none');
@@ -392,7 +393,7 @@ fetchStudentDetails();
                 spinner.classList.add('d-none');
                 submitText.classList.remove('d-none');
                 
-                if (response.ok) {
+                if (response.status===200) {
                     return response.json().then(data => {
                         successMessage.innerText = data.message || "Created successfully";
                         successAlert.classList.remove('d-none');

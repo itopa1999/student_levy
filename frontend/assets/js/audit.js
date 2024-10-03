@@ -17,84 +17,66 @@ document.addEventListener('DOMContentLoaded', function() {
   
   
          let currentPage = 1;
-        document.getElementById('orderingSelect').addEventListener('change', function() {
-          currentPage = 1;
-          fetchTransactions();
-        });
   
         document.getElementById('searchInput').addEventListener('input', function() {
           currentPage = 1;
-          fetchTransactions();
+          fetchAudit();
         });
   
         document.getElementById('prevPage').addEventListener('click', function(e) {
             e.preventDefault();
             if (currentPage > 1) {
                 currentPage--;
-                fetchTransactions();
+                fetchAudit();
             }
         });
   
         document.getElementById('nextPage').addEventListener('click', function(e) {
             e.preventDefault();
             currentPage++;
-            fetchTransactions();
+            fetchAudit();
         });
   
-        function fetchTransactions() {
+        function fetchAudit() {
   
             const searchInput = document.getElementById('searchInput').value;
   
-            const orderSelect = document.getElementById('orderingSelect').value;
-  
-            const url = `http://localhost:5087/admin/api/list/transactions?FilterOptions=${searchInput}&OrderOptions=${orderSelect}&PageNumber=${currentPage}`;
+            const url = `http://localhost:5087/admin/api/get/audit?FilterOptions=${searchInput}&PageNumber=${currentPage}`;
   
             fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
-            })
-            .then(response => {
+            }).then(response => {
                 if (response.status===200) {
                     return response.json();
                 } else {
                   return response.json().then(data => {
-                      // Handle other error statuses
                       errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
                       errorAlert.classList.remove('d-none');
                     })
                 }
-            })
-            .then(data => {
+            }).then(data => {
                 console.log(data)
-                document.getElementById('t_amount').innerHTML ="₦"+ data.totalPay.toFixed(2);
-                document.getElementById('t_bill').innerHTML = "₦"+ data.totalBilling.toFixed(2);
-                document.getElementById('t_tobal').innerHTML ="₦"+ data.totalToBal.toFixed(2);
   
                 const tableBody = document.querySelector('.table-container');
                 tableBody.innerHTML = ''; // Clear any existing rows
-  
-                if (data.transactions.$values.length === 0) {
+                if (data.$values.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
                             <td colspan="7" class="text-center">No data found</td>
                         </tr>
                     `;
                 } else {
-                    data.transactions.$values.forEach((transaction) => {
+                    data.$values.forEach((index) => {
                         const rowHtml = `
                             <tr>
-                                <th scope="row">${transaction.id}</th>
-                                <td>${transaction.studentFName} ${transaction.studentLName}</td>
-                                <td>${transaction.studentMatricNo}</td>
-                                <td>${transaction.levyName}</td>
-                                <td>₦${transaction.amount.toFixed(2)}</td>
-                                <td>${transaction.description}</td>
-                                <td>${transaction.payer}</td>
-                                <td>${transaction.method}</td>
-                                <td>${new Date(transaction.createdAt).toLocaleString()}</td>
-                                <td>${transaction.transID}</td>
+                                <th scope="row">${index.id}</th>
+                                <td>${index.user}</td>
+                                <td>${index.action}</td>
+                                <td>${new Date(index.createdAt).toLocaleString()}</td>
+                                
                             </tr>
                         `;
                         tableBody.innerHTML += rowHtml;
@@ -105,16 +87,15 @@ document.addEventListener('DOMContentLoaded', function() {
             })          
             .catch(error => {
                 console.log(error)
-              errorMessage.innerText = 'Server1 is not responding. Please try again later.';
+              errorMessage.innerText = 'Server is not responding. Please try again later.';
               errorAlert.classList.remove('d-none');
             });
         }
   
-        fetchTransactions();
+        fetchAudit();
 
-
-        document.getElementById('downloadTransaction').addEventListener('click', function() {
-            fetch(`http://localhost:5087/admin/api/download/transactions`, {
+        document.getElementById('downloadAudit').addEventListener('click', function() {
+            fetch(`http://localhost:5087/admin/api/download/audits`, {
               method: 'POST',
               headers: {
                   'Authorization': 'Bearer ' + token
@@ -135,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
               const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
               const a = document.createElement('a'); // Create an anchor element
               a.href = url; // Set the href to the Blob URL
-              a.download = `Transactions.csv`; // Set the desired file name for download
+              a.download = `Audit.csv`; // Set the desired file name for download
               document.body.appendChild(a); // Append the anchor to the body
               a.click(); // Programmatically click the anchor to trigger the download
               a.remove(); // Remove the anchor from the DOM
@@ -146,10 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
             errorAlert.classList.remove('d-none');
           });
         })
-
-
         
       })
-  
-  
   

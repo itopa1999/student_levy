@@ -43,5 +43,24 @@ namespace backend.Mappers
             };
 
         }
+
+        public static StuDetailsDto ToStuDetailsDto(this AppUser appUser){
+            return new StuDetailsDto{
+                Id = appUser.Id,
+                FirstName = appUser.FirstName,
+                LastName = appUser.LastName,
+                Username = appUser.UserName,
+                MatricNo = appUser.MatricNo,
+                Balance = appUser.Balance,
+                CreatedAt = appUser.CreatedAt,
+                DepartmentId = appUser.DepartmentId,
+                DepartmentName = appUser.Department?.Name,
+                DepartmentType = appUser.Department?.ProgramType,
+                DepartmentYear = appUser.Department?.AcademicYear
+                
+            };
+        }
+
+
     }
 }

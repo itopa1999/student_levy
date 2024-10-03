@@ -8,6 +8,7 @@ namespace backend.Interfaces
 {
     public interface IUserRepository
     {
-        string CreateAdminUser(AppUser appUser);
+       
+        Task<Audit> CreateAuditAsync(string name, string action);
     }
 }

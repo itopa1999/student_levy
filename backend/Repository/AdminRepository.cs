@@ -10,6 +10,7 @@ using backend.Mappers;
 using backend.models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository
@@ -365,6 +366,7 @@ namespace backend.Repository
                 TransID = t.TransID,
                 Method = t.Method,
                 Description = t.Description,
+                Payer = t.Payer,
                 LevyName = t.Levy.Name,
                 CreatedAt = t.CreatedAt,
                 StudentFName=t.AppUser.FirstName,
@@ -374,6 +376,35 @@ namespace backend.Repository
             var SkipNumber = (query.PageNumber - 1) * query.PageSize;
             return await transactionDto.Skip(SkipNumber).Take(query.PageSize).ToListAsync();
         
+        }
+
+        public async Task<AdminProfileDto?> GetAdminDetailsAsync(string id)
+        {
+            var admin = await _userManager.Users
+            .FirstOrDefaultAsync(x => x.Id == id);
+            if (admin == null)
+            {
+                return null;
+            }
+            var adminDto= admin.ToAdminProfileDto();
+
+            return adminDto;;
+        }
+
+        public async Task<List<AuditDo>> ListAuditAsync(AuditQuery query)
+        {
+            var audit = _context.Audits
+            .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(query.FilterOptions)){
+                audit = audit.Where(x=>x.Action.Contains(query.FilterOptions)
+                || x.User.Contains(query.FilterOptions)
+                );
+            }
+            audit = audit.OrderByDescending(t => t.CreatedAt);
+            var auditDto = audit.Select(x => x.ToAuditDo());
+            var SkipNumber = (query.PageNumber - 1) * query.PageSize;
+            return await auditDto.Skip(SkipNumber).Take(query.PageSize).ToListAsync();
+
         }
 
 

@@ -47,7 +47,7 @@ namespace backend.Controllers
         [HttpPost("create/admin/")]
         public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminDto createAdminDto){
             if (!ModelState.IsValid){
-                return BadRequest(ModelState);
+                return StatusCode(400, new{message=ModelState});
             }
             try{
               var user = new AppUser{
@@ -63,6 +63,9 @@ namespace backend.Controllers
               if (userModel.Succeeded){
                 var role = await _userManager.AddToRoleAsync(user, "Admin");
                 if (role.Succeeded){
+                    var action = $"Created an admin: {user.FirstName} {user.LastName}";
+                    var name = $"From raw endpoint";
+                    await _userRepo.CreateAuditAsync(name, action);
                     return StatusCode(201, new {message = $"Admin Account Successfully Created for {createAdminDto.Username}"});
                 }else{return StatusCode(500, new {message = role.Errors});}
                 
@@ -77,16 +80,19 @@ namespace backend.Controllers
         [HttpPost("login/admin/")]
         public async Task<IActionResult> LoginAdmin([FromBody] LoginDto loginDto){
             if (!ModelState.IsValid){
-                return BadRequest(ModelState);
+                return StatusCode(400, new{message=ModelState});
             }
             var user = await _userManager.Users.FirstOrDefaultAsync(x=> x.UserName == loginDto.Username);
             if (user == null){
-                return BadRequest(new { message = "incorrect credentials"});
+                return StatusCode(400, new { message = "incorrect credentials"});
             }else{
                 var loginUser = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
                 if (!loginUser.Succeeded){
-                    return BadRequest(new { message = "incorrect credentials"});
+                    return StatusCode(400, new { message = "incorrect credentials"});
                 }else{
+                    var action = $"LoggedIn";
+                    var name = $"{user.FirstName} {user.LastName}";
+                    await _userRepo.CreateAuditAsync(name, action);
                     return StatusCode (200,new {
                     message = "login successfully",
                     firstname = user.FirstName,
@@ -104,7 +110,7 @@ namespace backend.Controllers
         [HttpPost("forgot/password/")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto){
             if (!ModelState.IsValid){
-                return BadRequest(ModelState);
+                return StatusCode(400, new{message=ModelState});
             }
             var userModel = await _userManager.Users.FirstOrDefaultAsync(x=> x.UserName == forgotPasswordDto.Username);
             if (userModel == null){
@@ -136,7 +142,7 @@ namespace backend.Controllers
         [HttpPost("verify/otp/")]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto verifyOtpDto){
             if (!ModelState.IsValid){
-                return BadRequest(ModelState);
+                return StatusCode(400, new{message=ModelState});
             }
             var userModel = await _userManager.Users.FirstOrDefaultAsync(x=> x.UserName == verifyOtpDto.Username);
             if (userModel == null){
@@ -174,7 +180,7 @@ namespace backend.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto passwordDto){
             if (!ModelState.IsValid){
-                return BadRequest(ModelState);
+                return StatusCode(400, new{message=ModelState});
             }
             if (passwordDto.Password1 != passwordDto.Password2){
                 return StatusCode(400, new{message="password mismatch"});
@@ -182,20 +188,23 @@ namespace backend.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound(new { message = "User not found" });
+                return StatusCode(404,  new { message = "User not found" });
             }
             var result = await _userManager.ChangePasswordAsync(user, passwordDto.OldPassword, passwordDto.Password1);
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description).ToArray();
-                return BadRequest(new { message = "Password change failed", errors });
+                return StatusCode(400, new { message = "Password change failed", errors });
             }
-            return Ok(new { message = "Password changed successfully" });
+            var action = $"Change Password";
+            var name = $"{user.FirstName} {user.LastName}";
+            await _userRepo.CreateAuditAsync(name, action);
+            return StatusCode(200, new { message = "Password changed successfully" });
         }
 
         [HttpGet("logout/")]
@@ -203,7 +212,7 @@ namespace backend.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            return Ok(new { message = "User logged out successfully" });
+            return StatusCode(200, new { message = "User logged out successfully" });
         }
 
         [HttpGet("get/user/data/")]
@@ -212,19 +221,22 @@ namespace backend.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return StatusCode(401,  new{message="Authorized Access"});
             }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound(new { message = "User not found" });
+                return StatusCode(404,  new { message = "User not found" });
             }
             return StatusCode(200, new{
                 isAdmin = user.IsAdmin,
                 isStudent = user.IsStudent,
                 firstname = user.FirstName,
+                lastname = user.LastName,
+                matric = user.MatricNo,
                 });
         }
+
 
     }
 }

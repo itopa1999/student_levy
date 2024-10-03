@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .then(response => {
-        if (response.ok) {
+        if (response.status===200) {
             return response.json().then(data => {
                 document.getElementById('semesterName').innerHTML = data.name;
                 document.getElementById('semesterDepartment').innerHTML = data.departmentName;
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="fw-bold">${item.name}</div>
                         <span style="font-size: 0.85rem;">CreatedAt: ${item.createdAt}</span>
                       </div>
-                      <a href="#!" class="btn btn-secondary btn-sm" >${item.amount}</a>
+                      <a href="#!" class="btn btn-secondary btn-sm" >₦${item.amount.toFixed(2)}</a>
                     </li>
                         `;
                         container.innerHTML += cardHtml;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             submitText.classList.remove('d-none');
             
-            if (response.ok) {
+            if (response.status===200) {
                 return response.json().then(data => {
                     document.querySelector('.addLevy-form').reset();
                     successMessage.innerText = data.message;

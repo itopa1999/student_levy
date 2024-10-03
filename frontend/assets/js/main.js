@@ -340,11 +340,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }else if (response.status ===200) {
       return response.json().then(data => {
         console.log(data);
-        if (data.isAdmin===true) {
+        if (data.isAdmin===true || data.isStudent===true) {
           
           document.getElementById('firstName').innerHTML=data.firstname
-        } else if (data.isStudent===true) {
-          document.getElementById('firstName').innerHTML=data.firstname
+          document.getElementById('fullname').innerHTML=data.firstname + " " + data.lastname
+          document.getElementById('username').innerHTML=data.matric
         } else {
           localStorage.removeItem('levy_token');
           window.location.href = 'login.html';
@@ -360,6 +360,12 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById("logoutBtn").addEventListener('click', function() {
     localStorage.removeItem('levy_token');
     window.location.href = 'login.html';
+});
+
+
+document.getElementById("logoutBtn1").addEventListener('click', function() {
+  localStorage.removeItem('levy_token');
+  window.location.href = 'login.html';
 });
 
 

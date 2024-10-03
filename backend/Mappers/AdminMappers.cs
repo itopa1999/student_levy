@@ -72,10 +72,10 @@ namespace backend.Mappers
                 Amount = transaction.Amount,
                 Method = transaction.Method,
                 Description = transaction.Description,
+                Payer = transaction.Payer,
                 TransID = transaction.TransID,
                 LevyName = transaction.Levy?.Name,
                 CreatedAt = transaction.CreatedAt,
-                IsCompleted = transaction.IsCompleted
                 
             };
         }
@@ -157,6 +157,7 @@ namespace backend.Mappers
                 SemesterName = levy.Semester?.Name,
                 StudentFName = levy.AppUser?.FirstName,
                 StudentLName = levy.AppUser?.LastName,
+                StudentMatric = levy.AppUser?.MatricNo,
                 CreatedAt = levy.CreatedAt
 
             };
@@ -167,6 +168,47 @@ namespace backend.Mappers
             return new GetAddLevySemesterDto{
                 Name = semester.Name,
                 Id = semester.Id
+            };
+        }
+
+
+        public static AdminProfileDto ToAdminProfileDto(this AppUser appUser){
+            return new AdminProfileDto{
+                Id = appUser.Id,
+                FirstName = appUser.FirstName,
+                LastName = appUser.LastName,
+                Username = appUser.UserName,
+                CreatedAt = appUser.CreatedAt,
+                
+            };
+        }
+
+
+        public static AuditDo ToAuditDo(this Audit audit){
+            return new AuditDo{
+                Id = audit.Id,
+                Action = audit.Action,
+                User = audit.User,
+                CreatedAt = audit.CreatedAt,
+                
+            };
+        }
+
+
+        public static DownloadStudentDto ToDownloadStudentDto(this AppUser appUser){
+            return new DownloadStudentDto{
+                Id = appUser.Id,
+                FirstName = appUser.FirstName,
+                LastName = appUser.LastName,
+                MatricNo = appUser.MatricNo,
+                Username = appUser.UserName,
+                CreatedAt = appUser.CreatedAt,
+                DepartmentName = appUser.Department?.Name,
+                AcademicYear = appUser.Department?.AcademicYear,
+                ProgramType = appUser.Department?.ProgramType,
+                IsStudent = true,
+
+                
             };
         }
 

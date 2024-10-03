@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
               }
           })
           .then(response => {
-              if (response.ok) {
+              if (response.status===200) {
                   return response.json();
               } else {
                 return response.json().then(data => {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                       }
                     })
                     .then(response => {
-                      if (response.ok) {
+                      if (response.status===200) {
                           return response.blob(); // Convert the response to a Blob
                       } else {
                         return response.json().then(data => {

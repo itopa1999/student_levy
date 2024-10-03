@@ -17,13 +17,36 @@
   <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
+
+  <style>
+    a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: #f1f1f1;
+  color: black;
+}
+  </style>
 </head>
 <body>
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
-        <img src="assets/img/logo.jpeg" alt="index">
+      <a href="dashboard.html" class="logo d-flex align-items-center">
+        <img src="assets/img/logo.jpeg" alt="dashboard">
         <span class="d-none d-lg-block">StaFees</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -47,7 +70,7 @@
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="student-profile.html">
+              <a class="dropdown-item d-flex align-items-center" href="admin-profile.html">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
               </a>
@@ -79,7 +102,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="index.html">
+        <a class="nav-link collapsed" href="dashboard.html">
           <i class="bi bi-grid"></i>
           <span>Home</span>
         </a>
@@ -87,22 +110,33 @@
       
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="levy.html">
-          <i class="bi bi-cash"></i>
-          <span>School Levies</span>
+        <a class="nav-link collapsed" href="department.html">
+          <i class="bi bi-building"></i>
+          <span>Department</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="transactions.html">
+        <a class="nav-link collapsed" href="student.html">
+          <i class="bi bi-people"></i>
+          <span>Student</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="adminTransaction.html">
           <i class="bi bi-credit-card"></i>
           <span>Transactions</span>
         </a>
       </li>
-      
       <li class="nav-item">
-        <a class="nav-link collapsed" href="clearance.html">
-          <i class="bi bi-check-circle"></i>
-          <span>Clearance</span>
+        <a class="nav-link collapsed" href="defaultstudent.html">
+          <i class="bi bi-person-badge"></i>
+          <span>Default Student</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="audit.html">
+          <i class="bi bi-file-earmark-text"></i>
+          <span>Audit</span>
         </a>
       </li>
       <li class="nav-item">
@@ -118,53 +152,50 @@
 <main id="main" class="main">
 
 <div class="pagetitle">
-    <h1>Clearance</h1>
+    <h1>Auditing</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-        <li class="breadcrumb-item active">Clearance</li>
+        <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+        <li class="breadcrumb-item active">Auditing</li>
         <li class="breadcrumb-item"></li>
       </ol>
     </nav>
   </div><!-- End Page Title -->
-  <section class="section dashboard profile">
-  <div class="row mt-4" id="card1-container">
-    <div class="col-xxl-4 col-md-4">
-      <div class="card info-card sales-card">
-        <div class="card-body">
-          <h5 class="card-title"> <strong id="DepartmentName"></strong></h5>
 
-          <div class="d-flex align-items-center">
-            <div class="ps-3">
-              <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="academicYearDep"></span> <br>
-              </p>
-                <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="ProTypeDepartment"></span> <br>
-                </p>
+  <section class="dashboard">
+    
+
+    <div class="row mt-4" id="card-container">
+      <div class="card">
+          <div class="card-body">
+              <h5 class="card-title">Audit</h5>
+              <div class="md-3">
+                <button class="btn btn-success text-white rounded-0" id="downloadAudit">
+                  Download CSV</button>
+              </div>
+              <input type="text" name="FilterOptions" class="w-10 form-control mt-3" id="searchInput" placeholder="Filter by Action, User">
+              <div class="table-responsive">
+                <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">User</th>
+                <th scope="col">Action</th>
+                <th scope="col">CreatedAt</th>
+                </tr>
+            </thead>
+            <tbody class="table-container">
+                
+            </tbody>
+            </table>
             </div>
+            <a href="#" class="previous" id="prevPage">&laquo; Previous</a>
+            <a href="#" class="next" id="nextPage">Next &raquo;</a>
+  
           </div>
-          
-        </div>
-
+          </div>
       </div>
-    </div>
-
-  </div>
-
-  <div class=" mt-4" id="card2-container">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Clearance</h5>
-            <div class="row mt-4" id="card-container">
-
-            </div>
-
-
-        </div>
-    </div>
-  </div>
-
   </section>
-
 
 
 </main><!-- End #main -->
@@ -194,7 +225,7 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/clearance.js"></script>
+  <script src="assets/js/audit.js"></script>
 
 </body>
 

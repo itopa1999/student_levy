@@ -45,7 +45,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "School Levy APIs", Version = "v1" });
 
     // Add the JWT security definition
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -131,7 +131,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddScoped<ReceiptPDFService>();
-// builder.Services.AddScoped<FlutterwaveService>();
+builder.Services.AddHttpClient<FlutterwaveService>();
 
 
 var app = builder.Build();

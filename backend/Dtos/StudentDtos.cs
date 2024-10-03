@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -61,6 +62,31 @@ namespace backend.Dtos
         public decimal Amount { get; set; }
         public decimal ToBalance { get; set; }
         public DateOnly CreatedAt { get; set; }
+    }
+
+
+    public class PayLevyDto
+    {
+        [Required]
+        public decimal Amount { get; set; }
+        
+       
+    }
+
+
+    public class StuDetailsDto
+    {
+        public string? Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Username { get; set; }
+        public string? MatricNo { get; set; }
+        public decimal Balance { get; set; }
+        public DateOnly CreatedAt { get; set; }
+        public int? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? DepartmentYear { get; set; }
+        public string? DepartmentType { get; set; }
     }
 
 }
