@@ -14,6 +14,7 @@ namespace backend.Interfaces
         Task<StudentGetDepartmentDto?> GetClearanceAsync(int id,  string appUserId);
         Task<List<studentTransactionDto>?> GetAllTransactions(AppUser appUser, StudentTransactionQueryObjects transQuery);
         Task<StuDetailsDto?> GetStuDetailsAsync(string id);
+        Task<FlutterwaveResponseDto> VerifyStudentPayment(string transaction_id, int id);
     }
 
 

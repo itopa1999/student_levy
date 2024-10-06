@@ -116,16 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const spinner = document.getElementById('spinner');
         const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
         
         // Show spinner, hide login text
         spinner.classList.remove('d-none');
@@ -176,18 +166,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const spinner = document.getElementById('spinner');
-        const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
+        const spinner = document.getElementById('spinner1');
+        const submitText = document.getElementById('submit-text1');
         
         // Show spinner, hide login text
         spinner.classList.remove('d-none');

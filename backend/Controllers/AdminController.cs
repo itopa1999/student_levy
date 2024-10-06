@@ -180,47 +180,118 @@ namespace backend.Controllers
     [HttpPost("upload/students/")]
     [Authorize]
     [Authorize(Policy = "IsAdmin")]
-    public async Task<IActionResult> UploadStudent(IFormFile file)
+    public async Task<IActionResult> UploadStudent(IFormFile file, [FromForm] int departmentId)
     {
         if (file == null || file.Length == 0)
             return StatusCode(400, new{message="No file uploaded."});
+        if (departmentId.ToString() == null)
+            return StatusCode(400, new{message="No DepartmentID Found."});
+        var department = await _context.Departments.FindAsync(departmentId);
+        if (department == null)
+            return StatusCode(400, new{message="Department Not Found."});
 
         List<CreateStudentDto> students = new List<CreateStudentDto>();
         var extension = Path.GetExtension(file.FileName).ToLower();
-        int departmentId = 1; // Replace with the actual department ID you want to assign
         int successfulImports = 0;
         int duplicateCount = 0;
 
         try
         {
-            if (extension == ".csv")
+           if (extension == ".csv")
             {
                 using (var reader = new StreamReader(file.OpenReadStream()))
                 using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)))
                 {
-                    var records = csv.GetRecords<CreateStudentDto>();
-                    students.AddRange(records.Select(record => new CreateStudentDto
+                    csv.Read(); // Read the first row (header)
+                    csv.ReadHeader(); // Read header row
+
+                    // Expected headers
+                    string[] expectedHeaders = new string[] { "FirstName", "LastName", "MatricNo" };
+                    
+                    // Check if the actual headers match the expected headers
+                    foreach (var header in expectedHeaders)
                     {
-                        FirstName = record.FirstName?.Trim(),
-                        LastName = record.LastName?.Trim(),
-                        MatricNo = record.MatricNo?.Trim()
-                    }));
+                        if (!csv.HeaderRecord.Contains(header))
+                        {
+                            return BadRequest(new { message = $"Invalid header found. Expected '{header}' but not found in CSV." });
+                        }
+                    }
+
+                    // Continue reading records
+                    int nullDataCount = 0;
+                    while (csv.Read())
+                    {
+                        var firstName = csv.GetField("FirstName")?.Trim();
+                        var lastName = csv.GetField("LastName")?.Trim();
+                        var matricNo = csv.GetField("MatricNo")?.Trim();
+
+                        // Check for nulls in the data rows
+                        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(matricNo))
+                        {
+                            nullDataCount++;
+                            continue; // Skip if any field is null
+                        }
+
+                        var student = new CreateStudentDto
+                        {
+                            FirstName = firstName,
+                            LastName = lastName,
+                            MatricNo = matricNo
+                        };
+
+                        students.Add(student);
+                    }
                 }
             }
+
             else if (extension == ".xlsx")
             {
                 using (var stream = file.OpenReadStream())
                 {
                     using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {
+                        bool isFirstRow = true;
+                        int nullDataCount = 0; // Track the first row (headers)
+                        string[] expectedHeaders = new string[] { "FirstName", "LastName", "MatricNo" };
+                        string[] actualHeaders = new string[expectedHeaders.Length];
                         while (reader.Read())
                         {
-                            var student = new CreateStudentDto
+                            if (isFirstRow)
+                        {
+                            for (int i = 0; i < expectedHeaders.Length; i++)
                             {
-                                FirstName = reader.GetValue(0)?.ToString().Trim(),
-                                LastName = reader.GetValue(1)?.ToString().Trim(),
-                                MatricNo = reader.GetValue(2)?.ToString().Trim()
+                                actualHeaders[i] = reader.GetValue(i)?.ToString().Trim();
+                            }
+
+                            // Check if headers match the expected headers
+                            for (int i = 0; i < expectedHeaders.Length; i++)
+                            {
+                                if (!string.Equals(actualHeaders[i], expectedHeaders[i], StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return BadRequest(new { message = $"Invalid header '{actualHeaders[i]}' found. Expected '{expectedHeaders[i]}'." });
+                                }
+                            }
+
+                            isFirstRow = false;
+                            continue; // Skip the header row
+                        }
+                        var firstName = reader.GetValue(0)?.ToString().Trim();
+                        var lastName = reader.GetValue(1)?.ToString().Trim();
+                        var matricNo = reader.GetValue(2)?.ToString().Trim();
+
+                        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(matricNo))
+                        {
+                            nullDataCount++;
+                            continue; // Skip this record if any field is null
+                        }
+
+                        var student = new CreateStudentDto
+                            {
+                                FirstName = firstName,
+                                LastName = lastName,
+                                MatricNo = matricNo
                             };
+
                             students.Add(student);
                         }
                     }
@@ -264,7 +335,7 @@ namespace backend.Controllers
             return StatusCode(200, new 
             {
                 Message = $"{successfulImports} out of {students.Count} students imported successfully.",
-                Duplicates = duplicateCount
+                Duplicates = duplicateCount,
             });
         }
         catch (Exception ex)
@@ -430,6 +501,152 @@ namespace backend.Controllers
             }return StatusCode(400, new{message=$"levy already exists for this Name: {levyDto.Name}"});
         }
 
+
+        [HttpPost("upload/levies")]
+        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
+         public async Task<IActionResult> UploadLevies(IFormFile file, [FromForm] int SemesterId){
+            if (file == null || file.Length == 0)
+            return StatusCode(400, new{message="No file uploaded."});
+            if (SemesterId.ToString() == null)
+                return StatusCode(400, new{message="No SemesterId Found."});
+            var semester = await _context.Semesters.FindAsync(SemesterId);
+            if (semester == null)
+                return StatusCode(400, new{message="Semester Not Found."});
+            List<CreateLevyDto> levies = new List<CreateLevyDto>();
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            int successfulImports = 0;
+            int duplicateCount = 0;
+            try
+            {
+                if (extension == ".csv")
+                {
+                    using (var reader = new StreamReader(file.OpenReadStream()))
+                    using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)))
+                    {
+                        csv.Read(); // Read the first row (header)
+                        csv.ReadHeader(); // Read header row
+                        string[] expectedHeaders = new string[] { "Name", "Amount" };
+                        foreach (var header in expectedHeaders)
+                        {
+                            if (!csv.HeaderRecord.Contains(header))
+                            {
+                                return BadRequest(new { message = $"Invalid header found. Expected '{header}' but not found in CSV." });
+                            }
+                        }
+                        int nullDataCount = 0;
+                        while (csv.Read()){
+                            var name = csv.GetField("Name")?.Trim();
+                            var amountString = csv.GetField("Amount")?.Trim();
+                            decimal amountDecimal = 0;
+
+                            if (string.IsNullOrWhiteSpace(name) || !decimal.TryParse(amountString, out amountDecimal))
+                            {
+                                nullDataCount++;
+                                continue; // Skip if any field is null
+                            }
+                            var levy = new CreateLevyDto
+                            {
+                                Name = name,
+                                Amount = amountDecimal,
+                            };
+                            levies.Add(levy);
+
+                        }
+                    }
+                }
+                else if (extension == ".xlsx")
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        using (var reader = ExcelReaderFactory.CreateReader(stream))
+                        {
+                            bool isFirstRow = true;
+                            int nullDataCount = 0; // Track the first row (headers)
+                            string[] expectedHeaders = new string[] { "Name", "Amount" };
+                            string[] actualHeaders = new string[expectedHeaders.Length];
+                            while (reader.Read())
+                            {
+                                if (isFirstRow)
+                            {
+                                for (int i = 0; i < expectedHeaders.Length; i++)
+                                {
+                                    actualHeaders[i] = reader.GetValue(i)?.ToString().Trim();
+                                }
+                                for (int i = 0; i < expectedHeaders.Length; i++)
+                                {
+                                    if (!string.Equals(actualHeaders[i], expectedHeaders[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return BadRequest(new { message = $"Invalid header '{actualHeaders[i]}' found. Expected '{expectedHeaders[i]}'." });
+                                    }
+                                }
+                                isFirstRow = false;
+                                continue;
+                            }
+
+                            var name = reader.GetValue(0)?.ToString().Trim();
+                            decimal amount = 0;
+                            var amountString = reader.GetValue(1)?.ToString().Trim();
+                            if (decimal.TryParse(amountString, out decimal amountDecimal))
+                            {
+                                amount = amountDecimal;
+                            }
+                            else
+                            {
+                                amount = 0;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(name) || amount == 0)
+                            {
+                                nullDataCount++;
+                                continue;
+                            }
+
+                            var levy = new CreateLevyDto
+                            {
+                                Name = name,
+                                Amount = amount,
+                            };
+                            levies.Add(levy);
+
+                            
+                            }
+                        }
+                    }
+                }else
+            {
+                return StatusCode(400, new{message="Unsupported file format. Please upload a CSV or Excel file."});
+            }
+            foreach (var levyDto in levies){
+                var existingLevy = await _context.Levies.FirstOrDefaultAsync(x=>x.Name == levyDto.Name && x.SemesterId == SemesterId);
+                if (existingLevy != null){
+                    duplicateCount++;
+                    continue; 
+                }
+                
+                
+                var levy = levyDto.ToCreateLevyDto();
+                
+                var createdLevy = await _adminRepo.CreateBulkLevyAsync(levy, SemesterId);
+                successfulImports++;
+                if (createdLevy == null){
+                    return StatusCode(400, new{message="No student to assign levies for semester"});
+                }
+            }
+            return StatusCode(200, new 
+            {
+                Message = $"{successfulImports} out of {levies.Count} levies imported successfully.",
+                Duplicates = duplicateCount,
+            });
+
+
+            }catch (Exception ex){
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
         [HttpGet("get/levy/details/{id:int}")]
         [Authorize]
         [Authorize(Policy = "IsAdmin")]
@@ -568,6 +785,146 @@ namespace backend.Controllers
 
             }return StatusCode(400, new{message=$"levy already exists for this Name: {createLevyDto.Name}"});
         }
+
+
+        [HttpPost("upload/student/bulk/levies/{id}")]
+        // [Authorize]
+        // [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> UploadStudentBulkLevies(IFormFile file, [FromForm] int SemesterId,[FromRoute] string id){
+            if (file == null || file.Length == 0)
+            return StatusCode(400, new{message="No file uploaded."});
+            if (SemesterId.ToString() == null)
+                return StatusCode(400, new{message="No SemesterId Found."});
+            var semester = await _context.Semesters.FindAsync(SemesterId);
+            if (semester == null)
+                return StatusCode(400, new{message="Semester Not Found."});
+            var student = await _userManager.FindByIdAsync(id);
+            if (student == null)
+                return StatusCode(400, new{message="Student Not Found."});
+            List<CreateLevyDto> levies = new List<CreateLevyDto>();
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            int successfulImports = 0;
+            int duplicateCount = 0;
+            try
+            {
+                if (extension == ".csv")
+                {
+                    using (var reader = new StreamReader(file.OpenReadStream()))
+                    using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)))
+                    {
+                        csv.Read(); // Read the first row (header)
+                        csv.ReadHeader(); // Read header row
+                        string[] expectedHeaders = new string[] { "Name", "Amount" };
+                        foreach (var header in expectedHeaders)
+                        {
+                            if (!csv.HeaderRecord.Contains(header))
+                            {
+                                return BadRequest(new { message = $"Invalid header found. Expected '{header}' but not found in CSV." });
+                            }
+                        }
+                        int nullDataCount = 0;
+                        while (csv.Read()){
+                            var name = csv.GetField("Name")?.Trim();
+                            var amountString = csv.GetField("Amount")?.Trim();
+                            decimal amountDecimal = 0;
+
+                            if (string.IsNullOrWhiteSpace(name) || !decimal.TryParse(amountString, out amountDecimal))
+                            {
+                                nullDataCount++;
+                                continue; // Skip if any field is null
+                            }
+                            var levy = new CreateLevyDto
+                            {
+                                Name = name,
+                                Amount = amountDecimal,
+                            };
+                            levies.Add(levy);
+                        }
+                    }
+                }
+                else if (extension == ".xlsx")
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        using (var reader = ExcelReaderFactory.CreateReader(stream))
+                        {
+                            bool isFirstRow = true;
+                            int nullDataCount = 0; // Track the first row (headers)
+                            string[] expectedHeaders = new string[] { "Name", "Amount" };
+                            string[] actualHeaders = new string[expectedHeaders.Length];
+                            while (reader.Read())
+                            {
+                                if (isFirstRow)
+                            {
+                                for (int i = 0; i < expectedHeaders.Length; i++)
+                                {
+                                    actualHeaders[i] = reader.GetValue(i)?.ToString().Trim();
+                                }
+                                for (int i = 0; i < expectedHeaders.Length; i++)
+                                {
+                                    if (!string.Equals(actualHeaders[i], expectedHeaders[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return BadRequest(new { message = $"Invalid header '{actualHeaders[i]}' found. Expected '{expectedHeaders[i]}'." });
+                                    }
+                                }
+                                isFirstRow = false;
+                                continue;
+                            }
+                            var name = reader.GetValue(0)?.ToString().Trim();
+                            decimal amount = 0;
+                            var amountString = reader.GetValue(1)?.ToString().Trim();
+                            if (decimal.TryParse(amountString, out decimal amountDecimal))
+                            {
+                                amount = amountDecimal;
+                            }
+                            else
+                            {
+                                amount = 0;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(name) || amount == 0)
+                            {
+                                nullDataCount++;
+                                continue;
+                            }
+                            var levy = new CreateLevyDto
+                            {
+                                Name = name,
+                                Amount = amount,
+                            };
+                            levies.Add(levy);
+                            }
+                        }
+                    }
+
+                }else
+                {
+                    return StatusCode(400, new{message="Unsupported file format. Please upload a CSV or Excel file."});
+                }
+                foreach (var levyDto in levies){
+                var existingLevy = await _context.Levies.FirstOrDefaultAsync(x=>x.Name == levyDto.Name && x.SemesterId == SemesterId);
+                if (existingLevy != null){
+                    duplicateCount++;
+                    continue; 
+                }
+                var levy = levyDto.ToCreateLevyDto();
+                var createdLevy = await _adminRepo.CreateBulkStudentLevyAsync(levy, id, SemesterId);
+                successfulImports++;
+                if (createdLevy == null){
+                    return StatusCode(400, new{message="No student to assign levies for semester"});
+                }
+                }
+                return StatusCode(200, new 
+                {
+                    Message = $"{successfulImports} out of {levies.Count} levies imported successfully.",
+                    Duplicates = duplicateCount,
+                });
+            }catch (Exception ex){
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
 
         [HttpGet("list/transactions/")]
         [Authorize]

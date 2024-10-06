@@ -165,7 +165,7 @@ a:hover {
     <div class="md-3">
         <button class="btn btn text-white rounded-0 m-2" data-bs-toggle="modal" data-bs-target="#addStudentModal" style="background-color: rgb(19, 73, 143);">
         Add Student</button>
-        <button class="btn btn text-white rounded-0 m-2" data-bs-toggle="modal" data-bs-target="#addDepartmentModal" style="background-color: rgb(143, 141, 19);">
+        <button class="btn btn text-white rounded-0 m-2" data-bs-toggle="modal" data-bs-target="#addBulkStudentsModal" style="background-color: rgb(143, 141, 19);">
             Bulk Add Students</button>
         <button class="btn btn-success text-white rounded-0 m-2" id="downloadStudent">
           Download CSV</button>
@@ -299,6 +299,46 @@ a:hover {
               </form>
           </div>
       </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="addBulkStudentsModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Upload Bulk Students</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+        <center><strong style="font-size: x-large; font-weight: 900;">FOLLOW SAMPLE</strong></center>
+        <img src="assets/img/format.PNG" alt="" class="image-fluid">
+      </div>
+      <form id="uploadStudents-form" class=" needs-validation" novalidate>
+      <div class="col-12 mt-4">
+        <div class="input-group has-validation">
+        <input type="file" accept="csv/xlsx" name="file" class="form-control" id="studentFile" required>
+        </div>
+      </div>
+      <div class="col-12 mt-4">
+        <div class="input-group has-validation">
+        <select name="departmentId" class="form-control"  id="departmentSelect1"  required>
+            <option value="">....Choose Department....</option>
+        </select>
+      <div class="invalid-feedback">Please Choose Department</div>
+    </div>
+    </div>
+  </div>
+
+  <div class="modal-footer"><center>
+    <div class="col-12">
+      <button class="btn btn-primary " type="submit"><span class="" id="submit-text1">Submit <i class="bi bi-arrow-right"></i>
+      </span> <div id="spinner1" class="spinner-border text-white d-none"></div></button>
+    </div>
+  </div></center>
+    </form>
+    </div>
   </div>
 </div>
 

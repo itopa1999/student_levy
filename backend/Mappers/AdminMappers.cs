@@ -72,10 +72,13 @@ namespace backend.Mappers
                 Amount = transaction.Amount,
                 Method = transaction.Method,
                 Description = transaction.Description,
-                Payer = transaction.Payer,
+                Payer = string.IsNullOrEmpty(transaction.Payer) ? null : transaction.Payer,
                 TransID = transaction.TransID,
                 LevyName = transaction.Levy?.Name,
                 CreatedAt = transaction.CreatedAt,
+                StudentFName = transaction.AppUser?.FirstName,
+                StudentLName = transaction.AppUser?.LastName,
+                StudentMatricNo = string.IsNullOrEmpty(transaction.AppUser?.MatricNo) ? null : transaction.AppUser?.MatricNo,
                 
             };
         }

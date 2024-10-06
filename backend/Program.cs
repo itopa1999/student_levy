@@ -74,6 +74,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
+System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+
 
 //User-Setting and JWT Authentication
 builder.Services.AddIdentity<AppUser, IdentityRole>(options => {

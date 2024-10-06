@@ -7,6 +7,6 @@ namespace backend.Interfaces
 {
     public interface IFlutterWave
     {
-        Task<string> InitializePaymentAsync(decimal amount, string currency, string redirectUrl, string email, string txRef);
+        Task<string> InitializePaymentAsync(decimal amount);
     }
 }

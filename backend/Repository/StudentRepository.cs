@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos;
@@ -10,6 +11,7 @@ using backend.Mappers;
 using backend.models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace backend.Repository
 {
@@ -17,13 +19,19 @@ namespace backend.Repository
     {
         public readonly ApplicationDBContext _context;
         public readonly UserManager<AppUser> _userManager;
+        private readonly string _secretKey;
+        private readonly HttpClient _httpClient;
         public StudentRepository(
             ApplicationDBContext context,
-            UserManager<AppUser> userManager
+            UserManager<AppUser> userManager,
+            IConfiguration config,
+            HttpClient httpClient
             )
         {
             _context = context;
             _userManager = userManager;
+            _secretKey = config["Flutter:Secret_key"];
+            _httpClient = httpClient;
         }
 
         public async Task<List<studentTransactionDto>?> GetAllTransactions(AppUser appUser, StudentTransactionQueryObjects transQuery)
@@ -160,5 +168,43 @@ namespace backend.Repository
             return studentDto;
             
         }
+
+        public async Task<FlutterwaveResponseDto> VerifyStudentPayment(string transaction_id, int id)
+        {
+            
+            var flutterwaveSecretKey = _secretKey;
+            var url = $"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify";
+            try
+            {
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", flutterwaveSecretKey);
+            _httpClient.Timeout = TimeSpan.FromSeconds(30); // Set timeout
+
+            Console.WriteLine("Sending request to Flutterwave API...");
+            var response = await _httpClient.GetAsync(url);
+            Console.WriteLine($"Response received.{response}");
+
+            response.EnsureSuccessStatusCode(); // Throws if not 200-299
+
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response Content: {content}");
+
+            // Deserialize and return the response
+            return JsonConvert.DeserializeObject<FlutterwaveResponseDto>(content);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Request error: {ex.Message}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"The request timed out.{ex}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+
+            return null; // Handle appropriately
+            }
     }
 }

@@ -89,4 +89,22 @@ namespace backend.Dtos
         public string? DepartmentType { get; set; }
     }
 
+
+    public class FlutterwaveResponseDto
+    {
+        public string? Status { get; set; }
+        public string? Message { get; set; }
+        public Data? Data { get; set; }
+
+    }
+
+    public class Data
+    {
+        public string? Id { get; set; }
+        public string? Status { get; set; }
+        public string? user_id { get; set; }
+    
+    }
+
+
 }

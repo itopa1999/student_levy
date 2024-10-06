@@ -21,9 +21,17 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => {
         if (response.status===200) {
             return response.json().then(data => {
+                console.log(data)
                 document.getElementById('semesterName').innerHTML = data.name;
                 document.getElementById('semesterDepartment').innerHTML = data.departmentName;
                 document.getElementById('semesterID').value = data.id;
+                document.getElementById('semesID').value = data.id;
+                document.getElementById("semesterlink").addEventListener('click', function(event) {
+                    event.preventDefault();
+                    let id = data.departmentID;
+                    this.href = `departmentDetails.html?id=${id}`;
+                    window.location.href = this.href;
+                });
                 
                 const container = document.getElementById('semester-container');
                 container.innerHTML =""
@@ -78,24 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const spinner = document.getElementById('spinner');
         const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
         
         // Show spinner, hide login text
         spinner.classList.remove('d-none');
         submitText.classList.add('d-none');
-
-
-        
-        
 
         fetch('http://localhost:5087/admin/api/create/levy', {
             method: 'POST',
@@ -127,6 +121,59 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         
     });
+
+
+    document.getElementById('uploadLevies-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = this;
+        const formData = new FormData();
+        // Check form validity using browser's built-in validation
+        if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated'); // This will show the validation messages
+            return;
+        }
+
+        const spinner = document.getElementById('spinner1');
+        const submitText = document.getElementById('submit-text1');
+        
+        // Show spinner, hide login text
+        spinner.classList.remove('d-none');
+        submitText.classList.add('d-none');
+
+        
+        formData.append('file', document.getElementById('leviesFile').files[0]); // Append file
+        formData.append('semesterId', document.getElementById('semesID').value); // Append department ID
+
+        fetch('http://localhost:5087/admin/api/upload/levies', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => {
+            spinner.classList.add('d-none');
+            submitText.classList.remove('d-none');
+            if (response.status===200) {
+                return response.json().then(data => {
+                successMessage.innerText = data.message;
+                successAlert.classList.remove('d-none');
+                })
+            } else {
+              return response.json().then(data => {
+                  errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+                  errorAlert.classList.remove('d-none');
+                })
+            }
+        })
+        .catch(error => {
+            errorMessage.innerText = ('An error occurred. Please try again later.');
+            errorAlert.classList.remove('d-none');
+        });
+
+        
+        })
 
 
 })

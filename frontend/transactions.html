@@ -213,7 +213,11 @@ a:hover {
       <div class="card">
           <div class="card-body">
               <h5 class="card-title">Transactions</h5>
-              <input type="text" name="FilterOptions" class="w-10 form-control" id="searchInput" placeholder="Filter by TranID, Amount, Description, TranRef">
+              <div class="md-3">
+                <button class="btn btn-success text-white rounded-0" id="downloadTransaction">
+                  Download Pdf</button>
+              </div>
+              <input type="text" name="FilterOptions" class="w-10 form-control mt-3" id="searchInput" placeholder="Filter by TranID, Amount, Description, TranRef">
               <select name="OrderOptions" class="select mt-3 form-control" id='orderingSelect'>
                 <option value="">---- Sort by ----</option>
                 <option value="Amount">Amount</option>

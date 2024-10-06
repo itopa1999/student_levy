@@ -42,9 +42,11 @@ namespace backend.Repository
         {
             var students = await _userManager.Users.Where(x => x.IsStudent == true && x.Department.Semesters.Any(s => s.Id == levy.SemesterId))
                             .ToListAsync();
+            // Console.WriteLine($"countntttttttttt  {students.Count}");
             if (students.Count == 0){
                 return null;
             }
+            
             var studentLevies = new List<Levy>();
             foreach (var student in students)
             {
@@ -70,6 +72,42 @@ namespace backend.Repository
 
         }
 
+
+        public async Task<Levy?> CreateBulkLevyAsync(Levy levy, int SemesterId)
+        {
+            var students = await _userManager.Users.Where(x => x.IsStudent == true && x.Department.Semesters.Any(s => s.Id == SemesterId))
+                            .ToListAsync();
+            if (students.Count == 0){
+                return null;
+            }
+            
+            var studentLevies = new List<Levy>();
+            foreach (var student in students)
+            {
+                var studentLevy = new Levy
+                {
+                    AppUserId = student.Id,
+                    SemesterId = SemesterId,
+                    Amount = levy.Amount,
+                    Name = levy.Name,
+                    ToBalance = levy.Amount
+                };
+                
+                studentLevies.Add(studentLevy);
+                student.Balance += levy.Amount;
+
+                await _userManager.UpdateAsync(student);
+            }
+
+            await _context.Levies.AddRangeAsync(studentLevies);
+            await _context.SaveChangesAsync();
+
+            return levy;
+
+        }
+
+
+
         public async Task<Transaction> CreatePayStudentLevyAsync(Transaction transaction)
         {
             await _context.Transactions.AddAsync(transaction);
@@ -82,6 +120,27 @@ namespace backend.Repository
             var createlevy = new Levy{
                 AppUserId = id,
                 SemesterId = levy.SemesterId,
+                Amount = levy.Amount,
+                Name = levy.Name,
+                ToBalance = levy.Amount
+            };
+            var student = await _userManager.FindByIdAsync(id);
+            student.Balance += levy.Amount;
+
+
+            await _context.Levies.AddAsync(createlevy);
+            await _context.SaveChangesAsync();
+
+            return createlevy;
+
+        }
+
+
+        public async Task<Levy?> CreateBulkStudentLevyAsync(Levy levy, string id, int SemesterId)
+        {
+            var createlevy = new Levy{
+                AppUserId = id,
+                SemesterId = SemesterId,
                 Amount = levy.Amount,
                 Name = levy.Name,
                 ToBalance = levy.Amount
@@ -161,6 +220,7 @@ namespace backend.Repository
                 Id = semester.Id,
                 Name = semester.Name,
                 DepartmentName = semester.Department?.Name,
+                DepartmentID = semester.Department?.Id,
                 // Use Distinct to filter out Levies with the same Name
                 Levies = semester.Levies
                     .GroupBy(l => l.Name) // Group by the name

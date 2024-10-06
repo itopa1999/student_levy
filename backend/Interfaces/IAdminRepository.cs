@@ -22,9 +22,11 @@ namespace backend.Interfaces
         Task<StudentDto?> UpdateStudentDetailsAsync(string id, UpdateStudentDetailsDto studentDetailsDto);
         Task<StudentDetailsDto?> GetStudentDetailsAsync(string id, LevyQuery query);
         Task<Levy?> CreateLevyAsync(Levy levy);
+        Task<Levy?> CreateBulkLevyAsync(Levy levy, int SemesterId);
         Task<GetSemesterDetailsDto?> GetSemesterDetailsAsync(int id);
         Task<Transaction> CreatePayStudentLevyAsync(Transaction transaction);
         Task<Levy?> CreateStudentLevyAsync(Levy levy, string id);
+        Task<Levy?> CreateBulkStudentLevyAsync(Levy levy, string id, int SemesterId);
         Task<List<DefaultLeviesDto>> DefaultingStudentAsync(DefaultStudentQuery query);
         Task<List<studentTransactionDto>?> GetAdminAllTransactions(TransactionQuery query);
         Task<AdminProfileDto?> GetAdminDetailsAsync(string id);

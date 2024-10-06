@@ -58,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById("stuID").value = data.id;
                 document.getElementById("studentId").value = data.id;
                 document.getElementById("studentIDs").value = data.id;
+                document.getElementById("studentID4").value = data.id;
+                
                 var id =data.id;
                 
                 fetch(`http://localhost:5087/admin/api/get/student/semester/${id}`, {
@@ -76,6 +78,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.value = item.id;  // set the value as id
                         option.textContent = item.name;  // set the display text as name
                         selectElement.appendChild(option);
+                    });
+                    const selectElement1 = document.getElementById('semesterID1');
+                        data.$values.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;  // set the value as id
+                        option.textContent = item.name;  // set the display text as name
+                        selectElement1.appendChild(option);
                     });
                         })
                     }else{
@@ -193,17 +202,8 @@ fetchStudentDetails();
         }
         const spinner = document.getElementById('spinner');
         const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
         
+    
         // Show spinner, hide login text
         spinner.classList.remove('d-none');
         submitText.classList.add('d-none');
@@ -249,18 +249,10 @@ fetchStudentDetails();
             form.classList.add('was-validated'); // This will show the validation messages
             return;
         }
-        const spinner = document.getElementById('spinner');
-        const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
+        const spinner = document.getElementById('spinner1');
+        const submitText = document.getElementById('submit-text1');
+        
+        
         
         // Show spinner, hide login text
         spinner.classList.remove('d-none');
@@ -303,17 +295,9 @@ fetchStudentDetails();
             form.classList.add('was-validated'); // This will show the validation messages
             return;
         }
-        const spinner = document.getElementById('spinner');
-        const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
+        const spinner = document.getElementById('spinner2');
+        const submitText = document.getElementById('submit-text2');
+        
         
         // Show spinner, hide login text
         spinner.classList.remove('d-none');
@@ -366,17 +350,8 @@ fetchStudentDetails();
                 form.classList.add('was-validated'); // This will show the validation messages
                 return;
             }
-            const spinner = document.getElementById('spinner');
-            const submitText = document.getElementById('submit-text');
-            const errorAlert = document.getElementById('error-alert');
-            const errorMessage = document.getElementById('error-message');
-            const successAlert = document.getElementById('success-alert');
-            const successMessage = document.getElementById('success-message');
-            // Reset previous messages
-            errorAlert.classList.add('d-none');
-            errorMessage.innerHTML = '';
-            successAlert.classList.add('d-none');
-            successMessage.innerHTML = '';
+            const spinner = document.getElementById('spinner3');
+            const submitText = document.getElementById('submit-text3');
             
             // Show spinner, hide login text
             spinner.classList.remove('d-none');
@@ -418,7 +393,95 @@ fetchStudentDetails();
 
     });
 
-                
+    document.getElementById('downloadstudentTransaction').addEventListener('click', function() {
+        const id = document.getElementById('stuID').value;
+        fetch(`http://localhost:5087/admin/api/download/student/transactions/${id}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+          })
+          .then(response => {
+            if (response.status===200) {
+                return response.blob(); // Convert the response to a Blob
+            } else {
+              return response.json().then(data => {
+                  // Handle other error statuses
+                  errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+                  errorAlert.classList.remove('d-none');
+                })
+            }
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
+            const a = document.createElement('a'); // Create an anchor element
+            a.href = url; // Set the href to the Blob URL
+            a.download = `StudentTransactions.csv`; // Set the desired file name for download
+            document.body.appendChild(a); // Append the anchor to the body
+            a.click(); // Programmatically click the anchor to trigger the download
+            a.remove(); // Remove the anchor from the DOM
+            window.URL.revokeObjectURL(url); // Release the Blob URL
+        })
+        .catch(error => {
+          errorMessage.innerText = 'An error occurred. Please try again later.';
+          errorAlert.classList.remove('d-none');
+        });
+        
+    });
+
+
+
+    document.getElementById('uploadStudentLevies-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = this;
+        const formData = new FormData();
+        // Check form validity using browser's built-in validation
+        if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated'); // This will show the validation messages
+            return;
+        }
+
+        const spinner = document.getElementById('spinner4');
+        const submitText = document.getElementById('submit-text4');
+        
+        // Show spinner, hide login text
+        spinner.classList.remove('d-none');
+        submitText.classList.add('d-none');
+
+        
+        formData.append('file', document.getElementById('leviesFile').files[0]); // Append file
+        formData.append('semesterId', document.getElementById('semesterID1').value); // Append department ID
+        var id = document.getElementById('studentID4').value;
+        fetch(`http://localhost:5087/admin/api/upload/student/bulk/levies/${id}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => {
+            spinner.classList.add('d-none');
+            submitText.classList.remove('d-none');
+            if (response.status===200) {
+                return response.json().then(data => {
+                successMessage.innerText = data.message;
+                successAlert.classList.remove('d-none');
+                })
+            } else {
+              return response.json().then(data => {
+                  errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+                  errorAlert.classList.remove('d-none');
+                })
+            }
+        })
+        .catch(error => {
+            errorMessage.innerText = ('An error occurred. Please try again later.');
+            errorAlert.classList.remove('d-none');
+        });
+
+        
+        })
 
 
 })

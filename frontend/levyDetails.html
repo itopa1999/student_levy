@@ -135,7 +135,7 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
         <li class="breadcrumb-item"><a href="department.html">Department</a></li>
-        <li class="breadcrumb-item"><a href="departmentDetails.html?id=22">Department Details</a></li>
+        <li class="breadcrumb-item"><a href="#!" id="semesterlink">Department Details</a></li>
         <li class="breadcrumb-item active">Levy Details</li>
         <li class="breadcrumb-item"></li>
       </ol>
@@ -154,7 +154,8 @@
                 <p style="font-weight: 600; color: rgb(1, 30, 68);"><span id="semesterDepartment"></span> <br>
                 </p>
                 <p>
-                  <a href="#!" data-bs-toggle="modal" data-bs-target="#addLevyModal" class="btn btn-secondary btn-sm">Add Levy</a>
+                  <a href="#!" data-bs-toggle="modal" data-bs-target="#addLevyModal" class="btn btn-secondary btn-sm m-2">Add Levy</a>
+                  <a href="#!" data-bs-toggle="modal" data-bs-target="#addBulkyLevyModal" class="btn btn-secondary btn-sm m-2">Upload Bulk Levies</a>
                 </p>
               </div>
             </div>
@@ -229,6 +230,38 @@
       </div>
 
 
+
+      <div class="modal fade" id="addBulkyLevyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Upload Bulk Levies</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="container">
+              <center><strong style="font-size: x-large; font-weight: 900;">FOLLOW SAMPLE</strong></center>
+              <img src="assets/img/format1.PNG" alt="" class="image-fluid">
+            </div>
+            <form id="uploadLevies-form" class=" needs-validation" novalidate>
+            <div class="col-12 mt-4">
+              <div class="input-group has-validation">
+              <input type="file" accept="csv/xlsx" name="file" class="form-control" id="leviesFile" required>
+              </div>
+            </div>
+            <input type="hidden" name="semesterId" id="semesID">
+        </div>
+      
+            <div class="modal-footer"><center>
+              <div class="col-12">
+                <button class="btn btn-primary " type="submit"><span class="" id="submit-text1">Submit <i class="bi bi-arrow-right"></i>
+                </span> <div id="spinner1" class="spinner-border text-white d-none"></div></button>
+              </div>
+            </div></center>
+          </form>
+          </div>
+        </div>
+      </div>
    
 
 <div class="alert alert-danger fade show d-none" id="error-alert">

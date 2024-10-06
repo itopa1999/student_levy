@@ -106,6 +106,53 @@ document.addEventListener('DOMContentLoaded', function() {
       errorAlert.classList.remove('d-none');
     })
 
+    document.querySelector('.StudentPay-form').addEventListener('submit', function(event) {
+      const id = document.getElementById('itemId').value;
+      event.preventDefault();
+      const form = this;
+      const formData = new FormData(form);
+      if (!form.checkValidity()) {
+          event.stopPropagation();
+          form.classList.add('was-validated'); // This will show the validation messages
+          return;
+      }
+      const spinner = document.getElementById('spinner');
+      const submitText = document.getElementById('submit-text');
+     
+      
+      // Show spinner, hide login text
+      spinner.classList.remove('d-none');
+      submitText.classList.add('d-none');
+      fetch(`http://localhost:5087/student/api/payment/checkout/${id}`, {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData.entries())), // Convert form data to JSON
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(response => {
+        spinner.classList.add('d-none');
+        submitText.classList.remove('d-none');
+        
+        if (response.status === 200) {
+            return response.json().then(data => {
+                // Check if the response indicates success before redirecting
+                if (data.status === "success") {
+                    // Redirect to the Flutter link
+                    window.location.href = data.data.link;
+                } else {
+                    return response.json().then(data => {
+                        errorMessage.innerText = data.message || 'An error occurred. Please try again later or network issue';
+                        errorAlert.classList.remove('d-none');
+                    });
+                }
+            });
+        }
+
+    })
+})
+
 
 
 

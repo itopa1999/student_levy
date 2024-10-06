@@ -136,6 +136,8 @@ namespace backend.Dtos
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? DepartmentName { get; set; }
+        public int? DepartmentID { get; set; }
+        
         public List<SemesterLevyDto>? Levies {get; set;} = new List<SemesterLevyDto>();
         
         

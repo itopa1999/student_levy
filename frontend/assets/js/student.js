@@ -109,6 +109,18 @@ fetchStudents();
             option.value = item.id;  // set the value as id
             option.textContent = item.name;  // set the display text as name
             selectElement.appendChild(option);
+
+            })
+
+
+            const selectElement1 = document.getElementById('departmentSelect1');
+            data.$values.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;  // set the value as id
+            option.textContent = item.name;  // set the display text as name
+            selectElement1.appendChild(option);
+
+            
         });
             })
         }else{
@@ -228,6 +240,59 @@ fetchStudents();
             errorMessage.innerText = 'An error occurred. Please try again later.';
             errorAlert.classList.remove('d-none');
           });
+        });
+
+
+    document.getElementById('uploadStudents-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = this;
+        const formData = new FormData();
+        // Check form validity using browser's built-in validation
+        if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated'); // This will show the validation messages
+            return;
+        }
+
+        const spinner = document.getElementById('spinner1');
+        const submitText = document.getElementById('submit-text1');
+
+        // Show spinner, hide login text
+        spinner.classList.remove('d-none');
+        submitText.classList.add('d-none');
+
+        
+        formData.append('file', document.getElementById('studentFile').files[0]); // Append file
+        formData.append('departmentId', document.getElementById('departmentSelect1').value); // Append department ID
+
+        fetch('http://localhost:5087/admin/api/upload/students', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => {
+            spinner.classList.add('d-none');
+            submitText.classList.remove('d-none');
+            if (response.status===200) {
+                return response.json().then(data => {
+                document.getElementById('uploadStudents-form').reset();
+                successMessage.innerText = data.message;
+                successAlert.classList.remove('d-none');
+                })
+            } else {
+              return response.json().then(data => {
+                  errorMessage.innerText =data.message || 'An error occurred. Please try again later.';
+                  errorAlert.classList.remove('d-none');
+                })
+            }
+        })
+        .catch(error => {
+            console.error('Error:', 'An error occurred. Please try again later.');
+        });
+
+        
         })
     
 

@@ -322,10 +322,10 @@ namespace backend.Controllers
             
     
 
-        [HttpPost("payment/checkout/")]
+        [HttpPost("payment/checkout/{id:int}")]
         [Authorize]
         [Authorize(Policy = "IsStudent")]
-        public async Task<IActionResult> CheckoutPayment([FromBody] PayLevyDto payLevyDto){
+        public async Task<IActionResult> CheckoutPayment([FromBody] PayLevyDto payLevyDto, [FromRoute] int id){
             if (!ModelState.IsValid){
                 return StatusCode(400, new{message=ModelState});
             }
@@ -335,19 +335,54 @@ namespace backend.Controllers
                 return StatusCode(401,  new{message="Authorized Access"});
             }
             var student = await _userManager.FindByIdAsync(userId);
-            var result = await _flutterRepo.InitializePayment(payLevyDto.Amount, student);
+            var result = await _flutterRepo.InitializePayment(payLevyDto.Amount, student, id);
         
             return StatusCode(200, result);
         }
 
-        [HttpGet("confirm/deposit/{amount}")]
-        [Authorize]
-        [Authorize(Policy = "IsStudent")]
-        public IActionResult ConfirmDepositView(int amount, [FromQuery] string status, [FromQuery] string tx_ref, [FromQuery] string transaction_id)
+        [HttpGet("confirm/deposit/{amount}/{id}/{appUser}")]
+        public  async Task<IActionResult> ConfirmDepositView([FromRoute] AppUser appUser,[FromRoute]int amount, [FromRoute] int id, [FromQuery] string status, [FromQuery] string tx_ref, [FromQuery] string transaction_id)
         {
-            // Handle the confirmation logic here
-            return StatusCode(200, new { message = "Deposit confirmed", amount, status, tx_ref, transaction_id });
+            var isVerified = _studentRepo.VerifyStudentPayment(transaction_id, id);
+            if (isVerified == null)
+            {
+                return StatusCode(400, new { message = "Payment verification failed", transaction_id });
+            }
+            if (isVerified?.Result?.Status != null && isVerified.Result.Status != "success" &&
+                isVerified?.Result?.Message == "Transaction fetched successfully")
+            {
+                return StatusCode(400, new{message="Payment verification failed", transaction_id});
+            }
+            var levy = await _context.Levies
+            .Include(x=>x.Semester)
+            .Include(x=>x.AppUser)
+            .FirstOrDefaultAsync(x=>x.Id == id);
+            if (levy == null){
+                return StatusCode(400, new{message="Levy not Found"});
+            }
+            var transaction = new Transaction{
+                Amount = amount,
+                Method = "Payment Gateway",
+                Description = $"{levy.Name} payment for {levy.Semester.Name}",
+                Payer = $"{levy.AppUser?.FirstName} {levy.AppUser?.LastName}",
+                IsCompleted = true,
+                AppUserId = levy.AppUserId,
+                LevyId = levy.Id
+            };
+            await _context.Transactions.AddAsync(transaction);
+
+            levy.ToBalance -= amount;
+            if (appUser == null){
+                return StatusCode(400, new{message="Student not found"});
+            }
+
+            appUser.Balance -= amount;
+
+            await _context.SaveChangesAsync();
+
+            return StatusCode(200, new { message = "Payment was successfully." });
         }
+
 
 
         [HttpGet("get/student/profile")]
@@ -378,32 +413,110 @@ namespace backend.Controllers
         [HttpPost("download/transactions")]
         [Authorize]
         [Authorize(Policy = "IsStudent")]
-        public async Task<IActionResult> DownloadStudentTransactions(){
+        public async Task<IActionResult> DownloadStudentTransactions()
+        {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                return StatusCode(401,  new{message="Authorized Access"});
+                return StatusCode(401, new { message = "Authorized Access" });
             }
+
             var student = await _userManager.FindByIdAsync(userId);
-            var transactions = _context.Transactions
-            .Where(x=>x.AppUserId==student.Id)
-            .Include(l=>l.AppUser)
-            .Include(c=>c.Levy)
-            .OrderByDescending(t => t.CreatedAt);
+            var transactions = await _context.Transactions
+                .Where(x => x.AppUserId == student.Id)
+                .Include(c => c.Levy)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
 
-            var transactionDto = transactions.Select(t => new studentTransactionDto
+            if (!transactions.Any())
             {
-                Id = t.Id,
-                Amount = t.Amount,
-                TransID = t.TransID,
-                Method = t.Method,
-                Description = t.Description,
-                LevyName = t.Levy.Name,
-                CreatedAt = t.CreatedAt,
-                StudentID=student.Id
-            });
+                return StatusCode(404, new { message = "No transactions found for the student." });
+            }
 
-            return Ok();
+            // Generate rows for each transaction
+            var transactionRows = string.Join("", transactions.Select(t => $@"
+                <tr>
+                    <td>{t.Id}</td>
+                    <td>{t.Amount}</td>
+                    <td>{t.Method}</td>
+                    <td>{t.Description}</td>
+                    <td>{t.Payer}</td>
+                    <td>{t.Levy?.Name}</td>
+                    <td>{t.TransID}</td>
+                    <td>{t.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")}</td>
+                </tr>
+            "));
+
+            // Generate the full HTML content
+            var htmlContent = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='utf-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <style>
+                    @media print {{
+                        @page {{
+                            size: auto;
+                            margin: 10mm; /* Adjust margins if necessary */
+                        }}
+                    }}
+                    body {{
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        width: 100%; /* Set body width to 100% */
+                        position: relative;
+                    }}
+                    h2 {{
+                        text-align: center;
+                    }}
+                    table {{
+                        width: 100%; /* Ensure table takes full width */
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }}
+                    th, td {{
+                        padding: 10px;
+                        text-align: left;
+                        border: 1px solid #ddd;
+                    }}
+                    th {{
+                        background-color: #f2f2f2;
+                    }}
+                </style>
+            </head>
+            <body>
+                <h2>Transaction Receipt</h2>
+                <h3>Student: {student.FirstName} {student.LastName}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Description</th>
+                            <th>Description</th>
+                            <th>Levy Name</th>
+                            <th>Transaction ID</th>
+                            <th>Created At</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {transactionRows}
+                    </tbody>
+                </table>
+                <div style='margin-top: 20px;'>
+                    <p>Generated on {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}</p>
+                </div>
+            </body>
+            </html>
+            ";
+
+            // Generate the PDF from the HTML
+            var pdfBytes = _ReceiptPDF.GenerateTransactionReceipt(htmlContent);
+            return File(pdfBytes, "application/pdf", $"Student_{student.Id}_Transactions.pdf");
 
         }
 

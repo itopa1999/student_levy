@@ -54,20 +54,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const spinner = document.getElementById('spinner');
         const submitText = document.getElementById('submit-text');
-        const errorAlert = document.getElementById('error-alert');
-        const errorMessage = document.getElementById('error-message');
-        const successAlert = document.getElementById('success-alert');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset previous messages
-        errorAlert.classList.add('d-none');
-        errorMessage.innerHTML = '';
-        successAlert.classList.add('d-none');
-        successMessage.innerHTML = '';
-        
-        // Show spinner, hide login text
         spinner.classList.remove('d-none');
         submitText.classList.add('d-none');
+
     fetch('http://localhost:5087/auth/api/change/password', {
         method: 'POST',
             body: JSON.stringify(Object.fromEntries(formData.entries())), // Convert form data to JSON
