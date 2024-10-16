@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     successMessage.innerHTML = '';
   
   
-         let currentPage = 1;
+        let currentPage = 1;
         document.getElementById('orderingSelect').addEventListener('change', function() {
           currentPage = 1;
           fetchTransactions();
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })          
             .catch(error => {
                 console.log(error)
-              errorMessage.innerText = 'Server1 is not responding. Please try again later.';
+              errorMessage.innerText = 'Server is not responding. Please try again later.';
               errorAlert.classList.remove('d-none');
             });
         }

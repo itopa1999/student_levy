@@ -628,10 +628,10 @@ namespace backend.Controllers
                 var levy = levyDto.ToCreateLevyDto();
                 
                 var createdLevy = await _adminRepo.CreateBulkLevyAsync(levy, SemesterId);
-                successfulImports++;
                 if (createdLevy == null){
                     return StatusCode(400, new{message="No student to assign levies for semester"});
                 }
+                successfulImports++;
             }
             return StatusCode(200, new 
             {

@@ -148,7 +148,7 @@ namespace backend.Controllers
             if (userModel == null){
                 return StatusCode(400, new{message = "Username Not Found"});
             }
-            var getotp = await _context.Otps.FirstOrDefaultAsync(x=>x.Token == verifyOtpDto.Token);
+            var getotp = await _context.Otps.FirstOrDefaultAsync(x=>x.Token == verifyOtpDto.Token && x.AppUser.Id == userModel.Id);
             if (getotp == null){
                 return StatusCode(400, new{message = "Otp is not correct"});
             }else if (getotp.IsActive == false){
